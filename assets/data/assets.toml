@@ -3,8 +3,8 @@ half_size_x = 4.0
 half_size_y = 4.0
 columns = 1
 rows = 4
-sprite_size_x = 8.0
-sprite_size_y = 8.0
+sprite_size_x = 16.0
+sprite_size_y = 16.0
 speed = 4.3
 sprite = "sprites/soul.png"
 health = 4
@@ -14,6 +14,7 @@ damage = 1
 [assets]
 images = [
     "sprites/soul.png",
+    "sprites/pixel.png",
 ]
 atlases = [
     {name = "player", size_x = 10.0, size_y = 10.0, frame_count = 4},

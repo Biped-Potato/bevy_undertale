@@ -67,7 +67,7 @@ pub fn render_image(
         Name::new("RenderTarget"),
     ));
 }
-pub fn create_final_camera(commands: &mut Commands, layer: RenderLayers,scale : f32) -> Entity {
+pub fn create_final_camera(commands: &mut Commands, layer: RenderLayers, scale: f32) -> Entity {
     return commands
         .spawn((
             Msaa::Off,
@@ -80,7 +80,7 @@ pub fn create_final_camera(commands: &mut Commands, layer: RenderLayers,scale : 
                 ..default()
             },
             Projection::from(OrthographicProjection {
-                scale : scale,
+                scale: scale,
                 far: -1000.,
                 near: 1000.,
                 ..OrthographicProjection::default_2d()

@@ -1,5 +1,7 @@
 use crate::game::{
-    animation::animation::AtlasAnimationPlugin, camera::render_layers::RenderLayersPlugin, data::data::DataPlugin, loading::loading::AssetManagerPlugin, physics::physics::PhysicsPlugin, scene::scene::ScenePlugin
+    animation::animation::AtlasAnimationPlugin, camera::render_layers::RenderLayersPlugin,
+    data::data::DataPlugin, loading::loading::AssetManagerPlugin, physics::physics::PhysicsPlugin,
+    scene::scene::ScenePlugin,
 };
 use bevy::prelude::*;
 use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
@@ -9,8 +11,7 @@ use super::player::player::PlayerPlugin;
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(ClearColor(Color::BLACK))
+        app.insert_resource(ClearColor(Color::BLACK))
             .add_plugins((DataPlugin, AssetManagerPlugin))
             .add_plugins(PlayerPlugin)
             .add_plugins(RenderLayersPlugin)

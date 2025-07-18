@@ -14,13 +14,20 @@ use bevy::{
     window::{Monitor, PrimaryMonitor, PrimaryWindow, WindowMode, WindowResolution},
 };
 
-use crate::game::{camera::{render_layers::RenderLayerStorage, target::{create_final_camera, create_image, render_image}}, state::state::AppState};
+use crate::game::{
+    camera::{
+        render_layers::RenderLayerStorage,
+        target::{create_final_camera, create_image, render_image},
+    }, scene::bullet_board::BulletBoardPlugin, state::state::AppState
+};
 
 pub struct ScenePlugin;
 
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
+        app
+            .add_plugins(BulletBoardPlugin)
+            .add_systems(Startup, setup);
     }
 }
 #[derive(Resource)]
@@ -108,11 +115,10 @@ fn setup(
             render_layers.pre.clone(),
         ))
         .id();
-    render_image(
+    render_image(&mut commands, &image, render_layers.downscaled.clone(), 1.0);
+    let final_camera = create_final_camera(
         &mut commands,
-        &image,
         render_layers.downscaled.clone(),
-        1.0,
+        1.0 / screen_ratio,
     );
-    let final_camera = create_final_camera(&mut commands, render_layers.downscaled.clone(),1.0 / screen_ratio);
 }

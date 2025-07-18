@@ -5,9 +5,6 @@ use crate::game::physics::{physics_object::PhysicsLogicPlugin, timestep::Timeste
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((
-            TimestepPlugin,
-            PhysicsLogicPlugin
-        ));
+        app.add_plugins((TimestepPlugin, PhysicsLogicPlugin));
     }
 }
