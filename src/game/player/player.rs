@@ -1,14 +1,16 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    camera::render_layers::RenderLayerStorage, data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::bullet_board::BulletBoard, state::state::AppState
+    camera::render_layers::RenderLayerStorage, data::data::Data, loading::loading::AssetManager,
+    physics::physics_object::PhysicsComponent, scene::{bullet_board::BulletBoard, menu::MenuState},
+    state::state::AppState,
 };
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::Level), spawn_player)
-            .add_systems(FixedUpdate, player_movement);
+            .add_systems(FixedUpdate, player_movement.run_if(in_state(MenuState::Dodging)));
     }
 }
 
@@ -19,7 +21,7 @@ fn spawn_player(
     asset_manager: Res<AssetManager>,
     data: Res<Data>,
     render_layers: Res<RenderLayerStorage>,
-    bullet_board : Res<BulletBoard>,
+    bullet_board: Res<BulletBoard>,
 ) {
     commands.spawn((
         Sprite {

@@ -15,9 +15,15 @@ damage = 1
 images = [
     "sprites/soul.png",
     "sprites/pixel.png",
+
+    #buttons
+    "sprites/fightbutton.png",
+    "sprites/actbutton.png",
+    "sprites/itembutton.png",
+    "sprites/mercybutton.png"
 ]
 atlases = [
-    {name = "player", size_x = 10.0, size_y = 10.0, frame_count = 4},
+    {name = "button", size_x = 110.0, size_y = 42.0, frame_count = 2},
 ]
 sounds = [
     #{name = "dialogue", path = "sound/dialogue.wav", volume = 5.0}
@@ -26,7 +32,7 @@ sounds = [
 [[dialogue.dialogues]]
 name = "battle_start"
 dialogue = [
-    "Litstick appears to challenge you!",
+    "You encountered Zarn",
 ]
 
 
@@ -36,5 +42,20 @@ name = "monster"
     name = "idle"
     start = 1
     end = 1
+    cooldown = 0.1
+    looping = true
+
+[[assets.animations]]
+name = "button"
+    [[assets.animations.group]]
+    name = "hover"
+    start = 1
+    end = 1
+    cooldown = 0.1
+    looping = true
+    [[assets.animations.group]]
+    name = "inactive"
+    start = 2
+    end = 2
     cooldown = 0.1
     looping = true

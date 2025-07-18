@@ -74,8 +74,8 @@ fn load_assets(
 
         let layout = TextureAtlasLayout::from_grid(
             UVec2::new(atlas.size_x as u32, atlas.size_y as u32),
-            1,
             atlas.frame_count as u32,
+            1,
             None,
             None,
         );

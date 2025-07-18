@@ -18,16 +18,16 @@ use crate::game::{
     camera::{
         render_layers::RenderLayerStorage,
         target::{create_final_camera, create_image, render_image},
-    }, scene::bullet_board::BulletBoardPlugin, state::state::AppState
+    },
+    scene::menu::MenuPlugin,
+    state::state::AppState,
 };
 
 pub struct ScenePlugin;
 
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugins(BulletBoardPlugin)
-            .add_systems(Startup, setup);
+        app.add_plugins(MenuPlugin).add_systems(Startup, setup);
     }
 }
 #[derive(Resource)]
