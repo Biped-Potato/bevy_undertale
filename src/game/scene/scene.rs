@@ -14,7 +14,7 @@ use bevy::{
     window::{Monitor, PrimaryMonitor, PrimaryWindow, WindowMode, WindowResolution},
 };
 
-use crate::game::{camera::render_layers::RenderLayerStorage, state::state::AppState};
+use crate::game::{camera::{render_layers::RenderLayerStorage, target::{create_final_camera, create_image, render_image}}, state::state::AppState};
 
 pub struct ScenePlugin;
 
@@ -32,7 +32,7 @@ pub struct Platform {
 pub struct Resolution {
     pub game_res: Vec2,
 }
-const WINDOW_SIZE: Vec2 = Vec2::new(320., 240.);
+const WINDOW_SIZE: Vec2 = Vec2::new(640., 480.);
 
 fn setup(
     mut state: ResMut<NextState<AppState>>,
@@ -73,6 +73,14 @@ fn setup(
         window_size = Vec2::new(1280.0, 720.0);
     }
 
+    let dimensions = Vec2::new(WINDOW_SIZE.x, WINDOW_SIZE.y);
+    commands.insert_resource(Resolution {
+        game_res: dimensions,
+    });
+
+    let mut screen_ratio = window_size.y / dimensions.y;
+
+    let mut image = create_image(&mut images, dimensions);
     //original camera
     let main_camera = commands
         .spawn((
@@ -80,7 +88,9 @@ fn setup(
             Transform::IDENTITY,
             Camera {
                 hdr: true,
+                // render before the "main pass" camera
                 order: 0,
+                target: image.clone().into(),
                 ..default()
             },
             Projection::from(OrthographicProjection {
@@ -94,7 +104,15 @@ fn setup(
                 intensity: 0.1,
                 ..Default::default()
             },
+            Msaa::Off,
             render_layers.pre.clone(),
         ))
         .id();
+    render_image(
+        &mut commands,
+        &image,
+        render_layers.downscaled.clone(),
+        1.0,
+    );
+    let final_camera = create_final_camera(&mut commands, render_layers.downscaled.clone(),1.0 / screen_ratio);
 }

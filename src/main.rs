@@ -1,6 +1,7 @@
 #![allow(unexpected_cfgs)]
 #![allow(unused)]
 use bevy::{audio::{AudioPlugin, SpatialScale}, prelude::*, window::{PresentMode, WindowMode}};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::game::{game::GamePlugin, scene::scene::Platform};
 
@@ -9,6 +10,7 @@ const AUDIO_SCALE: f32 = 1. / 100.0;
 fn main() {
     App::new()
         .insert_resource(Platform { web: false })
+        
         .add_plugins(
             DefaultPlugins
                 .set(AudioPlugin {

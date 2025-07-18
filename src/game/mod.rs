@@ -7,3 +7,4 @@ pub mod state;
 pub mod toml;
 pub mod scene;
 pub mod camera;
+pub mod physics;
