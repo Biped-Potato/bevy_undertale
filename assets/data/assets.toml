@@ -1,0 +1,39 @@
+[player]
+half_size_x = 4.0
+half_size_y = 4.0
+columns = 1
+rows = 4
+sprite_size_x = 8.0
+sprite_size_y = 8.0
+speed = 0.8
+sprite = "sprites/soul.png"
+health = 4
+iframes = 0.5
+damage = 1
+
+[assets]
+images = [
+    "sprites/soul.png",
+]
+atlases = [
+    {name = "player", size_x = 10.0, size_y = 10.0, frame_count = 4},
+]
+sounds = [
+    #{name = "dialogue", path = "sound/dialogue.wav", volume = 5.0}
+]
+
+[[dialogue.dialogues]]
+name = "battle_start"
+dialogue = [
+    "Litstick appears to challenge you!",
+]
+
+
+[[assets.animations]]
+name = "monster"
+    [[assets.animations.group]]
+    name = "idle"
+    start = 1
+    end = 1
+    cooldown = 0.1
+    looping = true
