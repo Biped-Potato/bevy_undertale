@@ -1,16 +1,19 @@
 use bevy::prelude::*;
 
-use crate::game::{animation::animation::Animator, loading::loading::AssetManager, scene::bullet_board::BulletBoard, state::state::AppState};
+use crate::game::{animation::animation::Animator, data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::{bullet_board::BulletBoard, menu::MenuState}, state::state::AppState};
 
 #[derive(Resource)]
 pub struct MenuSelect {
     selection : i32,
     selections : Vec<MenuOption>,
+    button_width : f32,
+    button_height : f32,
+    spacing : f32,
 }
 
 impl MenuSelect {
-    fn cycle(&mut self) {
-        self.selection = (self.selection + 1) % self.selections.len() as i32;
+    fn cycle(&mut self, dir : i32) {
+        self.selection = (self.selection + dir).rem_euclid(self.selections.len() as i32);
     }
 }
 #[derive(Default, PartialEq, Component, Clone)]
@@ -26,11 +29,15 @@ impl Plugin for MenuSelectPlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(MenuSelect {
+                button_height : 42.,
+                button_width : 110.,
+                spacing : 45.0,
                 selection : 0,
                 selections : vec![MenuOption::Fight, MenuOption::Act, MenuOption::Item, MenuOption::Mercy]
             })
             .add_systems(OnEnter(AppState::Level), spawn_buttons)
-            .add_systems(PreStartup, init_bullet_board_size);
+            .add_systems(PreStartup, init_bullet_board_size)
+            .add_systems(Update,(update_selection,update_buttons).run_if(in_state(MenuState::Selection)));
     }
 }
 
@@ -40,16 +47,45 @@ pub fn init_bullet_board_size(
     bullet_board.set_absolute(565.0, 130.0, Vec2::new(0.,-80.));
 }
 
+fn update_selection(
+    mut menu : ResMut<MenuSelect>,
+    input : Res<ButtonInput<KeyCode>>,
+) {
+    if input.just_pressed(KeyCode::ArrowLeft) {
+        menu.cycle(-1);
+    }
+    if input.just_pressed(KeyCode::ArrowRight) {
+        menu.cycle(1);
+    }
+}
+
+fn update_buttons(
+    menu : Res<MenuSelect>,
+    data : Res<Data>,
+    mut button_query : Query<(&mut MenuOption,&mut Animator,&mut Sprite,&mut Transform)>,
+    mut player_query : Query<(&mut PhysicsComponent),With<Player>>
+) {
+    let selection = &menu.selections[menu.selection as usize];
+    for (mut menu_o, mut animator,mut sprite,mut t) in button_query.iter_mut() {
+        animator.current_animation = "inactive".to_string();
+        sprite.color = Color::srgb(1.0, 0.5, 39./255.);
+        if *selection == *menu_o {
+            animator.current_animation = "hover".to_string();
+            sprite.color = Color::srgb(1.0, 1.0, 64./255.);
+            if let Ok(mut p) = player_query.single_mut() {
+                p.position.y = t.translation.y;
+                p.position.x = t.translation.x - menu.button_width / 2.0 + 8.0 + data.player.sprite_size_x / 2.0;
+            }
+        }
+    }
+}
 pub fn spawn_buttons(
     menu : Res<MenuSelect>,
     mut bullet_board : ResMut<BulletBoard>,
     mut commands : Commands,
     asset_manager : Res<AssetManager>,
 ) {
-    let button_width = 110.0;
-    let button_height = 42.0;
-    let spacing = 45.0;
-    let mut current_pos = -bullet_board.width / 2.0  - bullet_board.border + button_width / 2.0;
+    let mut current_pos = -bullet_board.width / 2.0  - bullet_board.border + menu.button_width / 2.0;
     let mut sprites = vec![
         "sprites/fightbutton.png",
         "sprites/actbutton.png",
@@ -76,10 +112,10 @@ pub fn spawn_buttons(
                     animation_bank : asset_manager.animations["button"].clone(),
                     ..Default::default()
                 },
-                menu.selections[i].clone()
+                menu.selections[i].clone(),
             )
         );
-        current_pos += spacing + button_width;
+        current_pos += menu.spacing + menu.button_width;
     }
     
 }

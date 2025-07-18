@@ -9,13 +9,24 @@ use crate::game::{
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::Level), spawn_player)
+        app
+            .add_systems(OnEnter(MenuState::Dodging), move_soul)
+            .add_systems(OnEnter(AppState::Level), spawn_player)
             .add_systems(FixedUpdate, player_movement.run_if(in_state(MenuState::Dodging)));
     }
 }
 
 #[derive(Component)]
 pub struct Player {}
+
+fn move_soul(
+    mut bullet_board : Res<BulletBoard>,
+    mut player_query: Query<(&mut Player, &mut PhysicsComponent)>
+) {
+    if let Ok((mut p,mut physics)) = player_query.single_mut() {
+        physics.position = bullet_board.position;
+    }
+}
 fn spawn_player(
     mut commands: Commands,
     asset_manager: Res<AssetManager>,
