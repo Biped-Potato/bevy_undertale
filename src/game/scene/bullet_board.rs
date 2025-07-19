@@ -26,9 +26,11 @@ impl Plugin for BulletBoardPlugin {
 
             expansion_rate: 4.0,
             movement_rate: 4.0,
+
+            fill : None,
         })
         .add_systems(OnEnter(AppState::Level), spawn_bullet_board)
-        .add_systems(FixedPreUpdate, update_bullet_board);
+        .add_systems(FixedPreUpdate, (update_bullet_board,update_bullet_board_fill));
     }
 }
 
@@ -48,8 +50,20 @@ pub struct BulletBoard {
     pub expansion_rate: f32,
     //how fast the position of the box moves each frame
     pub movement_rate: f32,
+
+    pub fill : Option<Entity>,
 }
+
+#[derive(Component)]
+pub struct BulletBoardFill;
+
 impl BulletBoard {
+    //stable means that all the targets line up with the actual values
+    pub fn stable(&mut self) -> bool {
+        return (self.width.round() == self.target_width.round()
+            && self.height.round() == self.target_height.round()
+            && Vec2::length(self.position - self.target_position) <= 0.1);
+    }
     pub fn set_absolute(&mut self, width: f32, height: f32, position: Vec2) {
         self.width = width;
         self.height = height;
@@ -129,6 +143,26 @@ impl BulletBoard {
             render_layers.pre.clone(),
         ));
     }
+
+    pub fn spawn_fill(
+        &mut self,
+        commands: &mut Commands,
+        render_layers: &Res<RenderLayerStorage>,
+    ) {
+        let mut scale = Vec2::new(self.width,self.height);
+        let mut position = self.position;
+        let entity = commands.spawn((
+            Sprite::from_color(Color::srgba(1.,0.,0.,0.), scale),
+            Transform {
+                translation: Vec3::new(position.x, position.y, -1.0),
+                ..Default::default()
+            },
+            BulletBoardFill,
+            render_layers.pre.clone(),
+        )).id();
+
+        self.fill = Some(entity);
+    }
 }
 #[derive(Component, Default, PartialEq)]
 pub enum BulletBoardBorder {
@@ -138,7 +172,7 @@ pub enum BulletBoardBorder {
     Top,
     Bottom,
 }
-fn spawn_bullet_board(
+pub fn spawn_bullet_board(
     mut commands: Commands,
     mut bullet_board: ResMut<BulletBoard>,
     asset_manager: Res<AssetManager>,
@@ -168,6 +202,9 @@ fn spawn_bullet_board(
         &render_layers,
         BulletBoardBorder::Bottom,
     );
+
+    
+
 }
 pub fn move_towards_vec(start: Vec2, end: Vec2, rate: f32) -> Vec2 {
     let direction = Vec2::normalize_or_zero(end - start);
@@ -206,5 +243,16 @@ fn update_bullet_board(
         let scale = bullet_board.get_border_scale(&b);
         t.scale.x = scale.x;
         t.scale.y = scale.y;
+    }
+}
+
+fn update_bullet_board_fill(
+    mut bullet_board: ResMut<BulletBoard>,
+    mut fill_query : Query<(&mut BulletBoardFill,&mut Transform)>
+) {
+    if let Ok((mut b,mut t)) = fill_query.single_mut() {
+        t.translation.x = bullet_board.position.x;
+        t.translation.y = bullet_board.position.y;
+        t.scale = Vec2::new(bullet_board.width,bullet_board.height).extend(1.0);
     }
 }

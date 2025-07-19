@@ -7,7 +7,8 @@ sprite_size_x = 16.0
 sprite_size_y = 16.0
 speed = 4.3
 sprite = "sprites/soul.png"
-health = 4
+health = 20
+name = "FRISK"
 iframes = 0.5
 damage = 1
 
@@ -28,7 +29,12 @@ atlases = [
 sounds = [
     #{name = "dialogue", path = "sound/dialogue.wav", volume = 5.0}
 ]
-
+fonts = [
+    "fonts/Mars_Needs_Cunnilingus.ttf",
+    "fonts/DTM-Mono.ttf",
+    "fonts/DTM-Sans.ttf",
+    "fonts/8-BIT WONDER.ttf"
+]
 [[dialogue.dialogues]]
 name = "battle_start"
 dialogue = [

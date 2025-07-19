@@ -75,9 +75,9 @@ fn setup(
             monitor.physical_height as f32,
         );
     } else {
-        window.resolution = WindowResolution::new(1280 as f32, 720 as f32);
+        window.resolution = WindowResolution::new(640 as f32, 480 as f32);
         window.mode = WindowMode::Windowed;
-        window_size = Vec2::new(1280.0, 720.0);
+        window_size = Vec2::new(640.0, 480.0);
     }
 
     let dimensions = Vec2::new(WINDOW_SIZE.x, WINDOW_SIZE.y);

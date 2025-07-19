@@ -27,6 +27,7 @@ pub struct SoundAsset {
 pub struct AssetManager {
     pub assets: Vec<UntypedHandle>,
     pub images: HashMap<String, Handle<Image>>,
+    pub fonts: HashMap<String, Handle<Font>>,
     pub atlases: HashMap<String, Handle<TextureAtlasLayout>>,
     pub sounds: HashMap<String, SoundAsset>,
     pub animations: HashMap<String, HashMap<String, Animation>>,
@@ -62,6 +63,15 @@ fn load_assets(
     let sounds = &data.assets.sounds;
     let animations = &data.assets.animations;
     let dialogue = &data.dialogue;
+    let fonts = &data.assets.fonts;
+
+    for i in 0..fonts.len() {
+        let path = fonts[i].clone();
+        let handle = asset_manager.load_asset(path.clone(), &asset_server);
+        asset_manager.fonts.insert(path.clone(), handle);
+        log::info!("loaded font {}", path);
+    }
+
     for i in 0..images.len() {
         let path = images[i].clone();
         let handle = asset_manager.load_asset(path.clone(), &asset_server);

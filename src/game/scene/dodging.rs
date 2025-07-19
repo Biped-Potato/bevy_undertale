@@ -1,6 +1,11 @@
 use bevy::prelude::*;
 
-use crate::game::{data::data::Data, physics::physics_object::PhysicsComponent, player::player::{player_movement, Player}, scene::{bullet_board::BulletBoard, menu::MenuState}};
+use crate::game::{
+    data::data::Data,
+    physics::physics_object::PhysicsComponent,
+    player::player::{Player, player_movement},
+    scene::{bullet_board::BulletBoard, menu::MenuState},
+};
 
 pub struct DodgingPlugin;
 impl Plugin for DodgingPlugin {

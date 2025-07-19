@@ -13,7 +13,7 @@ pub mod game;
 const AUDIO_SCALE: f32 = 1. / 100.0;
 fn main() {
     App::new()
-        .insert_resource(Platform { web: false })
+        .insert_resource(Platform { web: true })
         .add_plugins(
             DefaultPlugins
                 .set(AudioPlugin {

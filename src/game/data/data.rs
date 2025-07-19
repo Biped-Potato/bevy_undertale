@@ -26,6 +26,7 @@ pub struct DialogueSet {
 
 #[derive(Deserialize, Clone, Default)]
 pub struct PlayerData {
+    pub name: String,
     pub half_size_x: f32,
     pub half_size_y: f32,
     pub columns: i32,
@@ -59,6 +60,7 @@ pub struct AssetData {
     pub atlases: Vec<TextureAtlasData>,
     pub sounds: Vec<SoundData>,
     pub animations: Vec<AnimationGroup>,
+    pub fonts: Vec<String>,
 }
 
 #[derive(Deserialize, Clone, Default)]
