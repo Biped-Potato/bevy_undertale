@@ -6,7 +6,7 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     player::player::Player,
-    scene::{bullet_board::BulletBoard, menu::MenuState},
+    scene::{bullet_board::BulletBoard, menu::MenuState, text::TextBox},
     state::state::AppState,
 };
 
@@ -20,11 +20,14 @@ pub struct MenuSelect {
 }
 
 impl MenuSelect {
-    fn cycle(&mut self, dir: i32) {
+    pub fn cycle(&mut self, dir: i32) {
         self.selection = (self.selection + dir).rem_euclid(self.selections.len() as i32);
     }
+    pub fn get_option(&mut self) -> MenuOption {
+        self.selections[self.selection as usize].clone()
+    }
 }
-#[derive(Default, PartialEq, Component, Clone)]
+#[derive(Default, PartialEq, Component, Clone, Eq, Hash)]
 pub enum MenuOption {
     #[default]
     Fight,
@@ -60,14 +63,21 @@ pub fn init_bullet_board_size(mut bullet_board: ResMut<BulletBoard>) {
     bullet_board.set_absolute(565.0, 130.0, Vec2::new(0., -80.));
 }
 
-fn update_selection(mut menu: ResMut<MenuSelect>, input: Res<ButtonInput<KeyCode>>) {
+fn update_selection(
+    mut menu: ResMut<MenuSelect>, input: Res<ButtonInput<KeyCode>>,
+    mut menu_state : ResMut<NextState<MenuState>>,
+    mut text_box : ResMut<TextBox>,
+) {
     if input.just_pressed(KeyCode::ArrowLeft) {
         menu.cycle(-1);
     }
     if input.just_pressed(KeyCode::ArrowRight) {
         menu.cycle(1);
     }
-    if input.just_pressed(KeyCode::KeyZ) {}
+    if input.just_pressed(KeyCode::KeyZ) {
+        menu_state.set(MenuState::Decision);
+        text_box.clear_box();
+    }
 }
 
 fn update_buttons(
@@ -110,7 +120,7 @@ pub fn spawn_buttons(
     for i in 0..menu.selections.len() {
         commands.spawn((
             Transform {
-                translation: Vec3::new(current_pos.round(), -213.0, 0.),
+                translation: Vec3::new(current_pos.floor(), -213.0, 0.),
                 ..Default::default()
             },
             Sprite {
