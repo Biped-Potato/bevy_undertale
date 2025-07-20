@@ -36,8 +36,10 @@ pub struct Decisions {
     pub menu : HashMap<MenuOption,DecisionMenu>,
     pub decision_menu : Option<DecisionMenu>,
     pub menu_entities : DecisionEntities,
+    pub remove_decisions : Option<SystemId>,
 
     pub switch_menu : bool,
+    pub submenu : bool,
     pub selection : i32,
     pub side : i32,
 
@@ -153,20 +155,30 @@ impl FromWorld for Decisions {
         menu.insert(MenuOption::Item,item_menu);
         menu.insert(MenuOption::Mercy, mercy_menu);
         
-
+        
         Self {
+            remove_decisions : Some(world.register_system(remove_decisions)),
             menu : menu,
             decision_menu : None,
             menu_entities : default(),
             side : 0,
             selection : 0,
             switch_menu : false,
+            submenu : false,
             increment : 0.,
             spacing : 0.,
         }
     }
 }
 
+fn remove_decisions(
+    mut commands : Commands,
+    decision_query : Query<(Entity),With<DecisionMarker>>
+) {
+    for(e) in decision_query.iter() {
+        commands.entity(e).despawn();
+    }
+}
 fn init_decision_menu(
     mut menu_select : ResMut<MenuSelect>,
     mut decisions : ResMut<Decisions>,
@@ -193,8 +205,8 @@ fn update_decision_display(
     let d = decisions.get_decision();
     if let Ok((mut physics,mut player)) = player_query.single_mut() {
         if let Ok(mut t) = decision_query.get_mut(d.1) {
-            physics.position.x = data.player.sprite_size_x / 2.0 + b_board.position.x - b_board.width / 2.0 + 27.0 + decisions.spacing * decisions.side as f32;
-            physics.position.y = -data.player.sprite_size_y / 2.0 + b_board.position.y + b_board.height / 2.0 - 23.0 - decisions.increment * decisions.selection as f32;
+            physics.position.x = data.game.player.sprite_size_x / 2.0 + b_board.position.x - b_board.width / 2.0 + 27.0 + decisions.spacing * decisions.side as f32;
+            physics.position.y = -data.game.player.sprite_size_y / 2.0 + b_board.position.y + b_board.height / 2.0 - 23.0 - decisions.increment * decisions.selection as f32;
         }
     }
 
@@ -202,7 +214,9 @@ fn update_decision_display(
 fn update_decisions(
     mut commands : Commands,
     mut decisions : ResMut<Decisions>,
+    mut menu_select : ResMut<MenuSelect>,
     keys : Res<ButtonInput<KeyCode>>,
+    mut menu_state : ResMut<NextState<MenuState>>,
 ) {
     if decisions.decision_menu.is_some() {
         let mut vertical = 0;
@@ -213,9 +227,22 @@ fn update_decisions(
             let decision = decisions.get_decision();
             if decision.0.submenu.is_some() {
                 decisions.enter_menu(decision.0.submenu.unwrap());
+                decisions.submenu = true;
             }
             else {
                 commands.run_system(decision.0.system.unwrap());
+            }
+        }
+        else if keys.just_pressed(KeyCode::KeyX) {
+            if decisions.submenu {
+                decisions.submenu = false;
+                let option = menu_select.get_option();
+                let menu = decisions.menu[&option].clone();
+                decisions.enter_menu(menu);
+            }
+            else {
+                commands.run_system(decisions.remove_decisions.unwrap());
+                menu_state.set(MenuState::Selection);
             }
         }
         else {
@@ -242,7 +269,6 @@ fn update_decisions(
 fn update_decision_spawning(
     mut commands : Commands,
     mut decisions : ResMut<Decisions>,
-    mut decision_query : Query<(&mut DecisionMarker, Entity)>,
     bullet_board : Res<BulletBoard>,
     asset_manager : Res<AssetManager>,
 ) {
@@ -254,9 +280,7 @@ fn update_decision_spawning(
             font_smoothing : bevy::text::FontSmoothing::None,
             ..Default::default()
         };
-        for (mut d, e) in decision_query.iter_mut() {
-            commands.entity(e).despawn();
-        }
+        commands.run_system(decisions.remove_decisions.unwrap());
 
         let menu = decisions.decision_menu.clone().unwrap();
 

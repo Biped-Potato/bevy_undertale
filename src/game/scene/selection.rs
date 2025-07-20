@@ -97,7 +97,7 @@ fn update_buttons(
                 p.position.y = t.translation.y;
                 p.position.x = t.translation.x - menu.button_width / 2.0
                     + 8.0
-                    + data.player.sprite_size_x / 2.0;
+                    + data.game.player.sprite_size_x / 2.0;
             }
         }
     }

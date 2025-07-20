@@ -153,7 +153,7 @@ fn update_name(
     data: Res<Data>,
 ) {
     if let Ok(e) = name_query.single() {
-        *writer.text(e, 0) = data.player.name.clone() + "   " + "LV 1";
+        *writer.text(e, 0) = data.game.player.name.clone() + "   " + "LV 1";
     }
 }
 

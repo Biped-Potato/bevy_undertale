@@ -25,29 +25,29 @@ fn constrain_player(
     data: Res<Data>,
 ) {
     for (mut player, mut physics) in player_query.iter_mut() {
-        if physics.position.x + data.player.sprite_size_x / 2.0
+        if physics.position.x + data.game.player.sprite_size_x / 2.0
             > bullet_board.position.x + bullet_board.width / 2.0
         {
             physics.position.x = bullet_board.position.x + bullet_board.width / 2.0
-                - data.player.sprite_size_x / 2.0;
+                - data.game.player.sprite_size_x / 2.0;
         }
-        if physics.position.x - data.player.sprite_size_x / 2.0
+        if physics.position.x - data.game.player.sprite_size_x / 2.0
             < bullet_board.position.x - bullet_board.width / 2.0
         {
             physics.position.x = bullet_board.position.x - bullet_board.width / 2.0
-                + data.player.sprite_size_x / 2.0;
+                + data.game.player.sprite_size_x / 2.0;
         }
-        if physics.position.y - data.player.sprite_size_y / 2.0
+        if physics.position.y - data.game.player.sprite_size_y / 2.0
             < bullet_board.position.y - bullet_board.height / 2.0
         {
             physics.position.y = bullet_board.position.y - bullet_board.height / 2.0
-                + data.player.sprite_size_y / 2.0;
+                + data.game.player.sprite_size_y / 2.0;
         }
-        if physics.position.y + data.player.sprite_size_y / 2.0
+        if physics.position.y + data.game.player.sprite_size_y / 2.0
             > bullet_board.position.y + bullet_board.height / 2.0
         {
             physics.position.y = bullet_board.position.y + bullet_board.height / 2.0
-                - data.player.sprite_size_y / 2.0;
+                - data.game.player.sprite_size_y / 2.0;
         }
     }
 }

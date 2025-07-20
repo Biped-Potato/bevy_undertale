@@ -8,8 +8,13 @@ use crate::game::{
 
 #[derive(Resource, Deserialize, Clone, Default)]
 pub struct Data {
-    pub player: PlayerData,
     pub assets: AssetData,
+    pub game : GameData,
+}
+
+#[derive(Deserialize, Clone, Default)]
+pub struct GameData {
+    pub player: PlayerData,
     pub dialogue: DialogueData,
 }
 
@@ -78,13 +83,21 @@ impl Plugin for DataPlugin {
 pub fn setup_data(mut commands: Commands, mut data_res: ResMut<Data>) {
     //let contents = load_contents("assets/data/data.toml".to_string());
 
-    let contents = include_str!("../../../assets/data/assets.toml").to_string();
+    let asset_contents = include_str!("../../../assets/data/assets.toml").to_string();
+    let asset_data: Option<AssetData> = read_toml(asset_contents);
 
-    let data: Option<Data> = read_toml(contents);
+    let contents = include_str!("../../../assets/data/data.toml").to_string();
+    let data : Option<GameData> = read_toml(contents);
+
     log::info!("try loading data");
+    if asset_data.is_some() {
+        log::info!("got asset data");
+        let asset_unwrapped = asset_data.unwrap();
+        data_res.assets = asset_unwrapped;
+    }
     if data.is_some() {
-        log::info!("got data");
-        let true_data = data.unwrap();
-        *data_res = true_data;
+        log::info!("got game data");
+        let data_unwrapped = data.unwrap();
+        data_res.game = data_unwrapped;
     }
 }

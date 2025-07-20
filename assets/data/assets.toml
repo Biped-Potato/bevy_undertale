@@ -1,18 +1,3 @@
-[player]
-half_size_x = 4.0
-half_size_y = 4.0
-columns = 1
-rows = 4
-sprite_size_x = 16.0
-sprite_size_y = 16.0
-speed = 4.3
-sprite = "sprites/soul.png"
-health = 20
-name = "FRISK"
-iframes = 0.5
-damage = 1
-
-[assets]
 images = [
     "sprites/soul.png",
     "sprites/pixel.png",
@@ -35,31 +20,26 @@ fonts = [
     "fonts/DTM-Sans.ttf",
     "fonts/8-BIT WONDER.ttf"
 ]
-[[dialogue.dialogues]]
-name = "battle_start"
-dialogue = [
-    "You encountered Zarn",
-]
 
 
-[[assets.animations]]
+[[animations]]
 name = "monster"
-    [[assets.animations.group]]
+    [[animations.group]]
     name = "idle"
     start = 1
     end = 1
     cooldown = 0.1
     looping = true
 
-[[assets.animations]]
+[[animations]]
 name = "button"
-    [[assets.animations.group]]
+    [[animations.group]]
     name = "hover"
     start = 1
     end = 1
     cooldown = 0.1
     looping = true
-    [[assets.animations.group]]
+    [[animations.group]]
     name = "inactive"
     start = 2
     end = 2

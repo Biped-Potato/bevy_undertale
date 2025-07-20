@@ -50,11 +50,11 @@ fn spawn_player(
     render_layers: Res<RenderLayerStorage>,
     bullet_board: Res<BulletBoard>,
 ) {
-    player_stats.health = data.player.health;
-    player_stats.max_health = data.player.health;
+    player_stats.health = data.game.player.health;
+    player_stats.max_health = data.game.player.health;
     commands.spawn((
         Sprite {
-            image: asset_manager.images[&data.player.sprite.clone()].clone(),
+            image: asset_manager.images[&data.game.player.sprite.clone()].clone(),
             ..Default::default()
         },
         PhysicsComponent::new(bullet_board.position),
@@ -83,7 +83,7 @@ pub fn player_movement(
         if input.pressed(KeyCode::ArrowLeft) {
             horizontal -= 1.;
         }
-        physics.position.x += horizontal * data.player.speed;
-        physics.position.y += vertical * data.player.speed;
+        physics.position.x += horizontal * data.game.player.speed;
+        physics.position.y += vertical * data.game.player.speed;
     }
 }

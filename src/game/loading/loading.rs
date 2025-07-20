@@ -62,7 +62,7 @@ fn load_assets(
     let atlases = &data.assets.atlases;
     let sounds = &data.assets.sounds;
     let animations = &data.assets.animations;
-    let dialogue = &data.dialogue;
+    let dialogue = &data.game.dialogue;
     let fonts = &data.assets.fonts;
 
     for i in 0..fonts.len() {

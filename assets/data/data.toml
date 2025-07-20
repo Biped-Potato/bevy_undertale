@@ -1,0 +1,19 @@
+[player]
+half_size_x = 4.0
+half_size_y = 4.0
+columns = 1
+rows = 4
+sprite_size_x = 16.0
+sprite_size_y = 16.0
+speed = 4.3
+sprite = "sprites/soul.png"
+health = 20
+name = "FRISK"
+iframes = 0.5
+damage = 1
+
+[[dialogue.dialogues]]
+name = "battle_start"
+dialogue = [
+    "You encountered Zarn",
+]
