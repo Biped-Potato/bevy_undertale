@@ -16,7 +16,13 @@ pub struct Data {
 pub struct GameData {
     pub player: PlayerData,
     pub dialogue: DialogueData,
+    pub battle : BattleData,
 }
+#[derive(Deserialize, Clone, Default)]
+pub struct BattleData {
+    pub dialogues: Vec<String>,
+}
+
 
 #[derive(Deserialize, Clone, Default)]
 pub struct DialogueData {

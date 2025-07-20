@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{ecs::system::SystemId, prelude::*, text::TextBounds};
 
-use crate::game::{data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::{bullet_board::{self, BulletBoard}, menu::MenuState, selection::{MenuOption, MenuSelect}}};
+use crate::game::{data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::{bullet_board::{self, BulletBoard}, menu::MenuState, progress::Progress, selection::{MenuOption, MenuSelect}, text::TextBox}};
 
 pub struct DecisionPlugin;
 impl Plugin for DecisionPlugin {
@@ -130,48 +130,7 @@ impl Decision {
     }
 }
 
-
-impl FromWorld for Decisions {
-    fn from_world(world: &mut World) -> Self {
-        let mut menu = HashMap::new();
-
-        let mut fight_menu = DecisionMenu::default();
-        let mut act_menu = DecisionMenu::default();
-        let mut item_menu = DecisionMenu::default();
-        let mut mercy_menu = DecisionMenu::default();
-
-        fight_menu.left_column.push(Decision::new("Dummy".to_string(),world.register_system(start_fight)));
-
-        let mut act_sub_menu = DecisionMenu::default();
-        
-        act_sub_menu.left_column.push(Decision::new("Check".to_string(),world.register_system(check)));
-        act_sub_menu.right_column.push(Decision::new("Talk".to_string(),world.register_system(talk)));
-
-        act_menu.left_column.push(Decision::new_with_menu("Dummy".to_string(),Some(act_sub_menu)));
-
-
-        menu.insert(MenuOption::Fight,fight_menu);
-        menu.insert(MenuOption::Act, act_menu);
-        menu.insert(MenuOption::Item,item_menu);
-        menu.insert(MenuOption::Mercy, mercy_menu);
-        
-        
-        Self {
-            remove_decisions : Some(world.register_system(remove_decisions)),
-            menu : menu,
-            decision_menu : None,
-            menu_entities : default(),
-            side : 0,
-            selection : 0,
-            switch_menu : false,
-            submenu : false,
-            increment : 0.,
-            spacing : 0.,
-        }
-    }
-}
-
-fn remove_decisions(
+pub fn remove_decisions(
     mut commands : Commands,
     decision_query : Query<(Entity),With<DecisionMarker>>
 ) {
@@ -217,6 +176,9 @@ fn update_decisions(
     mut menu_select : ResMut<MenuSelect>,
     keys : Res<ButtonInput<KeyCode>>,
     mut menu_state : ResMut<NextState<MenuState>>,
+    mut text_box : ResMut<TextBox>,
+    data : Res<Data>,
+    progress : Res<Progress>,
 ) {
     if decisions.decision_menu.is_some() {
         let mut vertical = 0;
@@ -243,6 +205,7 @@ fn update_decisions(
             else {
                 commands.run_system(decisions.remove_decisions.unwrap());
                 menu_state.set(MenuState::Selection);
+                commands.run_system(text_box.refresh_text.unwrap());
             }
         }
         else {
@@ -301,16 +264,4 @@ fn init_decisions(
     mut decisions : ResMut<Decisions>
 ) {
     
-}
-
-fn start_fight() {
-
-}
-
-fn talk() {
-
-}
-
-fn check() {
-
 }

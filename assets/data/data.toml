@@ -15,5 +15,10 @@ damage = 1
 [[dialogue.dialogues]]
 name = "battle_start"
 dialogue = [
-    "You encountered Zarn",
+    "You encountered the Dummy",
+]
+
+[battle]
+dialogues = [
+    "battle_start",
 ]

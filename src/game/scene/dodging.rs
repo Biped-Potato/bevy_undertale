@@ -18,6 +18,12 @@ impl Plugin for DodgingPlugin {
         );
     }
 }
+#[derive(Resource)]
+pub struct DodgingPhaseManager {
+    pub time : f32,
+    
+}
+
 
 fn constrain_player(
     mut bullet_board: ResMut<BulletBoard>,

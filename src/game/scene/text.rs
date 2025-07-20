@@ -1,6 +1,6 @@
-use bevy::{prelude::*, text::TextBounds};
+use bevy::{ecs::system::SystemId, prelude::*, text::TextBounds};
 
-use crate::game::{camera::render_layers::RenderLayerStorage, loading::loading::AssetManager, scene::bullet_board::{spawn_bullet_board, BulletBoard, BulletBoardFill}, state::state::AppState};
+use crate::game::{camera::render_layers::RenderLayerStorage, data::data::Data, loading::loading::AssetManager, scene::{bullet_board::{spawn_bullet_board, BulletBoard, BulletBoardFill}, progress::Progress}, state::state::AppState};
 
 
 pub struct TextBoxPlugin;
@@ -19,11 +19,15 @@ pub struct TextBox {
     pub timer : f32,
     pub velocity : f32,
     pub entity : Option<Entity>,
+    pub refresh_text : Option<SystemId>,
 }
 
-impl Default for TextBox {
-    fn default() -> Self {
+impl FromWorld for TextBox {
+    fn from_world(world : &mut World) -> Self {
+        let refresh_text = world.register_system(refresh_text);
+
         Self {
+            refresh_text : Some(refresh_text),
             text : "".to_string(),
             timer : 0.,
             velocity : 30.0,
@@ -31,11 +35,25 @@ impl Default for TextBox {
         }
     }
 }
-
+fn refresh_text(
+    asset_manager : Res<AssetManager>,
+    data : Res<Data>,
+    progress : Res<Progress>,
+    mut text_box : ResMut<TextBox>,
+) {
+    let dialogue_list = &data.game.battle.dialogues;
+    let dialogue_name = &dialogue_list[progress.turns as usize];
+    text_box.set_text("* ".to_string() + asset_manager.dialogue_storage[dialogue_name].dialogue[0].clone().as_str());
+}
 impl TextBox {
     pub fn clear_box(&mut self) {
         self.text = "".to_string();
     }
+    pub fn set_text(&mut self,text : String) {
+        self.text = text;
+        self.timer = 0.;
+    }
+    
 }
 #[derive(Component)]
 pub struct TextBoxText;
@@ -62,7 +80,7 @@ fn spawn_text(
     asset_manager : Res<AssetManager>,
     render_layers : Res<RenderLayerStorage>,
 ) {
-    text_box.text = "* You encountered the Dummy.".to_string();
+    commands.run_system(text_box.refresh_text.unwrap());
     let text_font = TextFont {
         font: asset_manager.fonts["fonts/DTM-Mono.ttf"].clone(),
         font_size: 26.0,

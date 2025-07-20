@@ -19,7 +19,7 @@ use crate::game::{
         render_layers::RenderLayerStorage,
         target::{create_final_camera, create_image, render_image},
     },
-    scene::menu::MenuPlugin,
+    scene::{battle::BattlePlugin, menu::MenuPlugin},
     state::state::AppState,
 };
 
@@ -27,7 +27,7 @@ pub struct ScenePlugin;
 
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(MenuPlugin).add_systems(Startup, setup);
+        app.add_plugins(BattlePlugin).add_systems(Startup, setup);
     }
 }
 #[derive(Resource)]
