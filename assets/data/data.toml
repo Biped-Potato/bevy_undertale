@@ -18,7 +18,29 @@ dialogue = [
     "You encountered the Dummy",
 ]
 
+[[dialogue.dialogues]]
+name = "talk"
+dialogue = [
+    "You talk to the DUMMY. ...",
+    "It doesn't seem much for conversation.",
+    "TORIEL seems happy with you."
+]
+
 [battle]
 dialogues = [
     "battle_start",
 ]
+
+[[board_layouts.layouts]]
+name = "selection"
+x = 0.0
+y = -80.0
+width = 565.0
+height = 130.0
+
+[[board_layouts.layouts]]
+name = "battle_1"
+x = 0.0
+y = -80.0
+width = 155.0
+height = 130.0

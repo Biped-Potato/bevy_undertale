@@ -6,7 +6,7 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     player::player::Player,
-    scene::{bullet_board::BulletBoard, menu::MenuState, text::TextBox},
+    scene::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition, text::TextBox},
     state::state::AppState,
 };
 
@@ -65,7 +65,7 @@ pub fn init_bullet_board_size(mut bullet_board: ResMut<BulletBoard>) {
 
 fn update_selection(
     mut menu: ResMut<MenuSelect>, input: Res<ButtonInput<KeyCode>>,
-    mut menu_state : ResMut<NextState<MenuState>>,
+    mut menu_transition : ResMut<MenuTransition>,
     mut text_box : ResMut<TextBox>,
 ) {
     if input.just_pressed(KeyCode::ArrowLeft) {
@@ -75,7 +75,7 @@ fn update_selection(
         menu.cycle(1);
     }
     if input.just_pressed(KeyCode::KeyZ) {
-        menu_state.set(MenuState::Decision);
+        menu_transition.new_state(MenuState::Decision);
         text_box.clear_box();
     }
 }

@@ -8,3 +8,4 @@ pub mod decisions;
 pub mod text;
 pub mod progress;
 pub mod battle;
+pub mod menu_transition;

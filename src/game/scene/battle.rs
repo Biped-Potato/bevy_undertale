@@ -1,19 +1,39 @@
 use std::collections::HashMap;
 
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemId, prelude::*};
 
-use crate::game::scene::{decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, menu::MenuPlugin, progress::ProgressPlugin, selection::MenuOption};
+use crate::game::{loading::loading::AssetManager, scene::{bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox}};
 
 pub struct BattlePlugin;
 impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((
+        app
+            .init_resource::<BattleEvents>()
+            .add_plugins((
             MenuPlugin,
             ProgressPlugin
         ));
     }
 }
 
+#[derive(Resource)]
+pub struct BattleEvents {
+    pub events : HashMap<String, SystemId>,
+    pub attack_transitions : Vec<SystemId>,
+}
+impl FromWorld for BattleEvents {
+    fn from_world(world: &mut World) -> Self {
+        let mut events = HashMap::new();
+        let mut attack_transitions = vec![
+            world.register_system(attack_1)
+        ];
+        
+        Self {
+            events : events,
+            attack_transitions : attack_transitions,
+        }
+    }
+}
 impl FromWorld for Decisions {
     fn from_world(world: &mut World) -> Self {
         let mut menu = HashMap::new();
@@ -54,14 +74,37 @@ impl FromWorld for Decisions {
     }
 }
 
-fn start_fight() {
+fn start_fight(
+    mut bullet_board : Res<BulletBoard>,
+    mut text_box : ResMut<TextBox>,
+    asset_manager : Res<AssetManager>,
+) {
 
 }
 
-fn talk() {
+fn talk(
+    mut commands : Commands,
+    mut decisions : ResMut<Decisions>,
+    mut text_box : ResMut<TextBox>,
+    mut battle_events : ResMut<BattleEvents>,
+    mut menu_transition : ResMut<MenuTransition>,
+    progress : Res<Progress>,
+    asset_manager : Res<AssetManager>,
+) {
+    commands.run_system(decisions.remove_decisions.unwrap());
+    menu_transition.new_state(MenuState::Text);
+    text_box.queue_event(asset_manager.dialogue_storage["talk"].clone(), battle_events.attack_transitions[progress.turns as usize]);
+}
 
+fn attack_1(
+    mut menu_transition : ResMut<MenuTransition>,
+    mut bullet_board : ResMut<BulletBoard>,
+    asset_manager : Res<AssetManager>,
+) {
+    menu_transition.new_state(MenuState::Dodging);
+    bullet_board.transition_board(asset_manager.board_layouts["battle_1"].clone());
 }
 
 fn check() {
-
+    
 }

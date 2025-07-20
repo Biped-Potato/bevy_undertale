@@ -17,10 +17,23 @@ pub struct GameData {
     pub player: PlayerData,
     pub dialogue: DialogueData,
     pub battle : BattleData,
+    pub board_layouts : BoardLayouts,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct BattleData {
     pub dialogues: Vec<String>,
+}
+#[derive(Deserialize, Clone, Default)]
+pub struct BoardLayouts {
+    pub layouts : Vec<BoardLayout>
+}
+#[derive(Deserialize, Clone, Default)]
+pub struct BoardLayout {
+    pub name : String,
+    pub x : f32,
+    pub y : f32,
+    pub width : f32,
+    pub height : f32,
 }
 
 

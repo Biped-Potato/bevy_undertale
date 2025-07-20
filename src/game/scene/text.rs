@@ -1,6 +1,6 @@
 use bevy::{ecs::system::SystemId, prelude::*, text::TextBounds};
 
-use crate::game::{camera::render_layers::RenderLayerStorage, data::data::Data, loading::loading::AssetManager, scene::{bullet_board::{spawn_bullet_board, BulletBoard, BulletBoardFill}, progress::Progress}, state::state::AppState};
+use crate::game::{camera::render_layers::RenderLayerStorage, data::data::{Data, DialogueSet}, loading::loading::AssetManager, player::player::Player, scene::{bullet_board::{spawn_bullet_board, BulletBoard, BulletBoardFill}, menu::MenuState, menu_transition::MenuTransition, progress::Progress}, state::state::AppState};
 
 
 pub struct TextBoxPlugin;
@@ -9,6 +9,9 @@ impl Plugin for TextBoxPlugin {
         app
         .init_resource::<TextBox>()
         .add_systems(OnEnter(AppState::Level),spawn_text.after(spawn_bullet_board))
+        .add_systems(OnEnter(MenuState::Text), hide_player)
+        .add_systems(OnExit(MenuState::Text), show_player)
+        .add_systems(Update, update_dialogue.run_if(in_state(MenuState::Text)))
         .add_systems(FixedUpdate,update_text.run_if(in_state(AppState::Level)));
     }
 }
@@ -20,6 +23,20 @@ pub struct TextBox {
     pub velocity : f32,
     pub entity : Option<Entity>,
     pub refresh_text : Option<SystemId>,
+
+    //set these 2 for different actions
+    pub dialogue : Option<DialogueSet>,
+    pub dialogue_end_event : Option<SystemId>,
+    pub dialogue_index : i32,
+}
+
+impl TextBox {
+    pub fn queue_event(&mut self,dialogue : DialogueSet, event : SystemId) {
+        self.dialogue = Some(dialogue);
+        self.dialogue_index = 0;
+        self.dialogue_end_event = Some(event);
+        self.timer = 0.;
+    }
 }
 
 impl FromWorld for TextBox {
@@ -27,6 +44,9 @@ impl FromWorld for TextBox {
         let refresh_text = world.register_system(refresh_text);
 
         Self {
+            dialogue_index : 0,
+            dialogue_end_event : None,
+            dialogue : None,
             refresh_text : Some(refresh_text),
             text : "".to_string(),
             timer : 0.,
@@ -58,6 +78,48 @@ impl TextBox {
 #[derive(Component)]
 pub struct TextBoxText;
 
+
+fn update_dialogue(
+    mut text_box : ResMut<TextBox>,
+    keys : Res<ButtonInput<KeyCode>>,
+    mut menu_transition : ResMut<MenuTransition>,
+    mut commands : Commands
+) {
+    if text_box.dialogue.is_some() {
+        let i = text_box.dialogue_index;
+        let dialogue = text_box.dialogue.clone().unwrap();
+        text_box.text = "* ".to_string() + dialogue.dialogue[i as usize].clone().as_str();
+        if keys.just_pressed(KeyCode::KeyX) {
+            text_box.timer = 1000.0;
+        }
+        if keys.just_pressed(KeyCode::KeyZ) {
+            text_box.timer = 0.;
+            text_box.dialogue_index += 1;
+        }
+        let len = dialogue.dialogue.len();
+        
+        if text_box.dialogue_index >= len as i32 {
+            text_box.dialogue = None;
+            text_box.clear_box();
+            commands.run_system(text_box.dialogue_end_event.unwrap());
+        }
+    }
+}
+fn hide_player(
+    mut player_query : Query<(&mut Visibility),With<Player>>
+) {
+    if let Ok(mut v) = player_query.single_mut() {
+        *v = Visibility::Hidden;
+    }
+}
+
+fn show_player(
+    mut player_query : Query<(&mut Visibility),With<Player>>
+) {
+    if let Ok(mut v) = player_query.single_mut() {
+        *v = Visibility::Visible;
+    }
+}
 fn update_text(
     mut writer : Text2dWriter,
     mut text_box : ResMut<TextBox>,
@@ -87,15 +149,18 @@ fn spawn_text(
         font_smoothing : bevy::text::FontSmoothing::None,
         ..Default::default()
     };
-    let mut pos = Vec2::new(14.1, -16.)+bullet_board.position;
-    let e =commands.spawn((
-        Text2d::new(""),
-        TextBounds::from(Vec2::new(bullet_board.width,bullet_board.height)),
-        TextLayout::new(JustifyText::Left, LineBreak::WordBoundary),
-        Name::new("text"),
-        text_font,
-        Transform::from_translation((pos).extend(1.0)),
-        TextBoxText,
-    )).id();
-    text_box.entity = Some(e);
+    let mut pos = Vec2::new(14.1, -16.);
+    let p = commands.spawn(Transform::from_translation(bullet_board.position.extend(0.0))).with_children(|builder| {
+        let e = builder.spawn((
+            Text2d::new(""),
+            TextBounds::from(Vec2::new(bullet_board.width,bullet_board.height)),
+            TextLayout::new(JustifyText::Left, LineBreak::WordBoundary),
+            Name::new("text"),
+            text_font,
+            Transform::from_translation((pos).extend(1.0)),
+            TextBoxText,
+        )).id();
+        text_box.entity = Some(e);
+    });
+
 }

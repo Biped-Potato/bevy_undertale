@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{ecs::system::SystemId, prelude::*, text::TextBounds};
 
-use crate::game::{data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::{bullet_board::{self, BulletBoard}, menu::MenuState, progress::Progress, selection::{MenuOption, MenuSelect}, text::TextBox}};
+use crate::game::{data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::{bullet_board::{self, BulletBoard}, menu::MenuState, menu_transition::MenuTransition, progress::Progress, selection::{MenuOption, MenuSelect}, text::TextBox}};
 
 pub struct DecisionPlugin;
 impl Plugin for DecisionPlugin {
@@ -175,7 +175,7 @@ fn update_decisions(
     mut decisions : ResMut<Decisions>,
     mut menu_select : ResMut<MenuSelect>,
     keys : Res<ButtonInput<KeyCode>>,
-    mut menu_state : ResMut<NextState<MenuState>>,
+    mut menu_transition : ResMut<MenuTransition>,
     mut text_box : ResMut<TextBox>,
     data : Res<Data>,
     progress : Res<Progress>,
@@ -204,7 +204,7 @@ fn update_decisions(
             }
             else {
                 commands.run_system(decisions.remove_decisions.unwrap());
-                menu_state.set(MenuState::Selection);
+                menu_transition.new_state(MenuState::Selection);
                 commands.run_system(text_box.refresh_text.unwrap());
             }
         }

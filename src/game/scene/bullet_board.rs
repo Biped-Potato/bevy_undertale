@@ -2,10 +2,10 @@ use bevy::prelude::*;
 
 use crate::game::{
     camera::render_layers::RenderLayerStorage,
-    data::data::Data,
+    data::data::{BoardLayout, Data},
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
-    player::player::{Player, player_movement},
+    player::player::{player_movement, Player},
     scene::menu::MenuState,
     state::state::AppState,
 };
@@ -24,7 +24,7 @@ impl Plugin for BulletBoardPlugin {
             target_position: Vec2::ZERO,
             border: 5.0,
 
-            expansion_rate: 4.0,
+            expansion_rate: 20.0,
             movement_rate: 4.0,
 
             fill : None,
@@ -63,6 +63,14 @@ impl BulletBoard {
         return (self.width.round() == self.target_width.round()
             && self.height.round() == self.target_height.round()
             && Vec2::length(self.position - self.target_position) <= 0.1);
+    }
+    pub fn transition_board(&mut self, board : BoardLayout) {
+        self.target_height = board.height;
+        self.target_width = board.width;
+        self.target_position = Vec2::new(board.x,board.y);
+    }
+    pub fn absolute_board(&mut self, board : BoardLayout) {
+        self.set_absolute(board.width, board.height, Vec2::new(board.x,board.y));
     }
     pub fn set_absolute(&mut self, width: f32, height: f32, position: Vec2) {
         self.width = width;
