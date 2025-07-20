@@ -10,8 +10,8 @@ impl Plugin for DecisionPlugin {
         app
             .init_resource::<Decisions>()
             .add_systems(OnEnter(MenuState::Decision), init_decision_menu)
-            .add_systems(Update,(update_decision_spawning.after(update_decisions),update_decisions).run_if(in_state(MenuState::Decision)))
-            .add_systems(FixedUpdate, update_decision_display.run_if(in_state(MenuState::Decision)))
+            .add_systems(Update, (update_decisions,update_decision_spawning.after(update_decisions)).run_if(in_state(MenuState::Decision)))
+            .add_systems(PostUpdate,(update_decision_display).run_if(in_state(MenuState::Decision)))
             .add_systems(Startup,init_decisions);
     }
 }
@@ -195,7 +195,6 @@ fn update_decision_display(
         if let Ok(mut t) = decision_query.get_mut(d.1) {
             physics.position.x = data.player.sprite_size_x / 2.0 + b_board.position.x - b_board.width / 2.0 + 27.0 + decisions.spacing * decisions.side as f32;
             physics.position.y = -data.player.sprite_size_y / 2.0 + b_board.position.y + b_board.height / 2.0 - 23.0 - decisions.increment * decisions.selection as f32;
-            println!("{} {}",decisions.side,decisions.spacing);
         }
     }
 
