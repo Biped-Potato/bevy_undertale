@@ -22,7 +22,7 @@ impl Plugin for GamePlugin {
                 EguiPlugin {
                     enable_multipass_for_primary_context: true,
                 },
-                //WorldInspectorPlugin::default(),
+                WorldInspectorPlugin::default(),
             ));
     }
 }

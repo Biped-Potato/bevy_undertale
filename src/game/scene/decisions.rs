@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{ecs::system::SystemId, prelude::*, text::TextBounds};
 
-use crate::game::{loading::loading::AssetManager, scene::{bullet_board::{self, BulletBoard}, menu::MenuState, selection::{MenuOption, MenuSelect}}};
+use crate::game::{data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::{bullet_board::{self, BulletBoard}, menu::MenuState, selection::{MenuOption, MenuSelect}}};
 
 pub struct DecisionPlugin;
 impl Plugin for DecisionPlugin {
@@ -10,7 +10,8 @@ impl Plugin for DecisionPlugin {
         app
             .init_resource::<Decisions>()
             .add_systems(OnEnter(MenuState::Decision), init_decision_menu)
-            .add_systems(Update,(update_decision_spawning,update_decisions).run_if(in_state(MenuState::Decision)))
+            .add_systems(Update,(update_decision_spawning.after(update_decisions),update_decisions).run_if(in_state(MenuState::Decision)))
+            .add_systems(FixedUpdate, update_decision_display.run_if(in_state(MenuState::Decision)))
             .add_systems(Startup,init_decisions);
     }
 }
@@ -39,6 +40,9 @@ pub struct Decisions {
     pub switch_menu : bool,
     pub selection : i32,
     pub side : i32,
+
+    pub spacing : f32,
+    pub increment : f32,
 }
 impl Decisions {
     fn reset_selections(&mut self) {
@@ -58,18 +62,22 @@ impl Decisions {
         bullet_board : &Res<BulletBoard>,
         position : Vec2,
         text_font : TextFont,
-        i : usize,
+        decision : Decision
     ) -> Entity {
         let menu = self.decision_menu.clone().unwrap();
-        commands.spawn((
-            Text2d::new("* ".to_string() + menu.left_column[i].display.as_str()),
+        let parent = commands.spawn(Transform::from_translation(bullet_board.position.extend(0.0))).id();
+
+        let e = commands.spawn((
+            Text2d::new("* ".to_string() + decision.display.as_str()),
             TextBounds::from(Vec2::new(bullet_board.width,bullet_board.height)),
             TextLayout::new(JustifyText::Left, LineBreak::WordBoundary),
             Name::new("decision"),
             text_font.clone(),
             Transform::from_translation((position).extend(1.0)),
             DecisionMarker {},
-        )).id()
+        )).id();
+        commands.entity(parent).add_child(e);
+        return e;
     }
     pub fn vertical_cycle(&mut self, i : i32) {
         let decision_menu = self.decision_menu.as_ref().unwrap();
@@ -77,11 +85,29 @@ impl Decisions {
         if self.side == 1 {
             column_size = decision_menu.right_column.len();
         }
-        self.selection = (self.selection + 1).rem_euclid(column_size as i32);
+        self.selection = (self.selection + i).rem_euclid(column_size as i32);
     }
     pub fn horizontal_cycle(&mut self, i : i32) {
-        self.side = (self.side + i) % 2;
+        let decision_menu = self.decision_menu.as_ref().unwrap();
+        if decision_menu.right_column.len() == 0 {
+            self.side = 0;
+        }
+        else {
+            self.side = (self.side + i).rem_euclid(2);
+        }
+
         self.vertical_cycle(0);
+    }
+    pub fn get_decision(&mut self) -> (Decision,Entity) {
+        let decision_menu = self.decision_menu.as_ref().unwrap();
+        let entity_menu = &self.menu_entities;
+        let mut decisions = &decision_menu.left_column;
+        let mut entities = &entity_menu.left_column;
+        if self.side == 1 {
+            decisions = &decision_menu.right_column;
+            entities = &entity_menu.right_column;
+        }
+        (decisions[self.selection as usize].clone(),entities[self.selection as usize])
     }
 }
 
@@ -135,6 +161,8 @@ impl FromWorld for Decisions {
             side : 0,
             selection : 0,
             switch_menu : false,
+            increment : 0.,
+            spacing : 0.,
         }
     }
 }
@@ -143,6 +171,9 @@ fn init_decision_menu(
     mut menu_select : ResMut<MenuSelect>,
     mut decisions : ResMut<Decisions>,
 ) {
+    decisions.increment = 32.;
+    decisions.spacing = 256.;
+
     let option = menu_select.get_option();
     let menu = decisions.menu[&option].clone();
     decisions.enter_menu(menu);
@@ -152,29 +183,61 @@ fn init_decision_menu(
 pub struct DecisionMarker {
 
 }
+fn update_decision_display(
+    mut decisions : ResMut<Decisions>,
+    mut decision_query : Query<(&mut Transform),Without<Player>>,
+    mut player_query : Query<(&mut PhysicsComponent, &mut Player)>,
+    mut b_board : Res<BulletBoard>,
+    data : Res<Data>,
+) {
+    let d = decisions.get_decision();
+    if let Ok((mut physics,mut player)) = player_query.single_mut() {
+        if let Ok(mut t) = decision_query.get_mut(d.1) {
+            physics.position.x = data.player.sprite_size_x / 2.0 + b_board.position.x - b_board.width / 2.0 + 27.0 + decisions.spacing * decisions.side as f32;
+            physics.position.y = -data.player.sprite_size_y / 2.0 + b_board.position.y + b_board.height / 2.0 - 23.0 - decisions.increment * decisions.selection as f32;
+            println!("{} {}",decisions.side,decisions.spacing);
+        }
+    }
 
+}
 fn update_decisions(
+    mut commands : Commands,
     mut decisions : ResMut<Decisions>,
     keys : Res<ButtonInput<KeyCode>>,
 ) {
-    let mut vertical = 0;
-    let mut horizontal = 0;
-    if keys.just_pressed(KeyCode::ArrowLeft) {
-        horizontal -= 1;
-    }
-    if keys.just_pressed(KeyCode::ArrowRight) {
-        horizontal += 1;
-    }
+    if decisions.decision_menu.is_some() {
+        let mut vertical = 0;
+        let mut horizontal = 0;
 
-    if keys.just_pressed(KeyCode::ArrowUp) {
-        vertical -= 1;
-    }
-    if keys.just_pressed(KeyCode::ArrowDown) {
-        vertical += 1;
-    }
+        
+        if keys.just_pressed(KeyCode::KeyZ) {
+            let decision = decisions.get_decision();
+            if decision.0.submenu.is_some() {
+                decisions.enter_menu(decision.0.submenu.unwrap());
+            }
+            else {
+                commands.run_system(decision.0.system.unwrap());
+            }
+        }
+        else {
+            if keys.just_pressed(KeyCode::ArrowLeft) {
+                horizontal -= 1;
+            }
+            if keys.just_pressed(KeyCode::ArrowRight) {
+                horizontal += 1;
+            }
 
-    decisions.vertical_cycle(vertical);
-    decisions.horizontal_cycle(horizontal);
+            if keys.just_pressed(KeyCode::ArrowUp) {
+                vertical -= 1;
+            }
+            if keys.just_pressed(KeyCode::ArrowDown) {
+                vertical += 1;
+            }
+            decisions.vertical_cycle(vertical);
+            decisions.horizontal_cycle(horizontal);
+        }
+        
+    }
 }
 
 fn update_decision_spawning(
@@ -197,17 +260,15 @@ fn update_decision_spawning(
         }
 
         let menu = decisions.decision_menu.clone().unwrap();
-        let increment = 32.0;
-        let spacing = 256.0;
 
         for i in 0..menu.left_column.len() {
-            let mut pos = Vec2::new(14.1 + 18., -16. - 32. * i as f32) + bullet_board.position;
-            let e = decisions.spawn_decision(&mut commands, &bullet_board, pos, text_font.clone(), i);
+            let mut pos = Vec2::new(14.1 + 49., -16. - decisions.increment * i as f32);
+            let e = decisions.spawn_decision(&mut commands, &bullet_board, pos, text_font.clone(), menu.left_column[i].clone());
             decisions.menu_entities.left_column.push(e);
         }
         for i in 0..menu.right_column.len() {
-            let mut pos = Vec2::new(14.1 + 18. + spacing, -16. - 32. * i as f32) + bullet_board.position;
-            let e = decisions.spawn_decision(&mut commands, &bullet_board, pos, text_font.clone(), i);
+            let mut pos = Vec2::new(14.1 + 49. + decisions.spacing, -16. - decisions.increment * i as f32);
+            let e = decisions.spawn_decision(&mut commands, &bullet_board, pos, text_font.clone(), menu.right_column[i].clone());
             decisions.menu_entities.right_column.push(e);
         }
     }
