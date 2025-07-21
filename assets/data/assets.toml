@@ -6,7 +6,10 @@ images = [
     "sprites/fightbutton.png",
     "sprites/actbutton.png",
     "sprites/itembutton.png",
-    "sprites/mercybutton.png"
+    "sprites/mercybutton.png",
+
+    "sprites/fightbar.png",
+    "sprites/timing.png"
 ]
 atlases = [
     {name = "button", size_x = 110.0, size_y = 42.0, frame_count = 2},

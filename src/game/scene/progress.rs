@@ -9,11 +9,11 @@ impl Plugin for ProgressPlugin {
 
 #[derive(Resource)]
 pub struct Progress {
-    pub turns : i32,
+    pub turns: i32,
 }
 
 impl Default for Progress {
     fn default() -> Self {
-        Self{turns : 0}
+        Self { turns: 0 }
     }
 }

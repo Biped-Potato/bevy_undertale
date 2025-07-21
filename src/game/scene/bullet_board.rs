@@ -5,7 +5,7 @@ use crate::game::{
     data::data::{BoardLayout, Data},
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
-    player::player::{player_movement, Player},
+    player::player::{Player, player_movement},
     scene::menu::MenuState,
     state::state::AppState,
 };
@@ -27,13 +27,25 @@ impl Plugin for BulletBoardPlugin {
             expansion_rate: 20.0,
             movement_rate: 4.0,
 
-            fill : None,
+            fill: None,
         })
+        .add_systems(PreUpdate,update_visibility.run_if(not_exception))
         .add_systems(OnEnter(AppState::Level), spawn_bullet_board)
-        .add_systems(FixedPreUpdate, (update_bullet_board,update_bullet_board_fill));
+        .add_systems(
+            FixedPreUpdate,
+            (update_bullet_board, update_bullet_board_fill),
+        );
     }
 }
 
+fn not_exception(
+    menu_state : Res<State<MenuState>>,
+) ->bool {
+    if *menu_state.get() == MenuState::Text || *menu_state.get() == MenuState::Fight {
+        return false;
+    }
+    return true;
+}
 #[derive(Resource)]
 pub struct BulletBoard {
     pub width: f32,
@@ -51,7 +63,7 @@ pub struct BulletBoard {
     //how fast the position of the box moves each frame
     pub movement_rate: f32,
 
-    pub fill : Option<Entity>,
+    pub fill: Option<Entity>,
 }
 
 #[derive(Component)]
@@ -64,13 +76,13 @@ impl BulletBoard {
             && self.height.round() == self.target_height.round()
             && Vec2::length(self.position - self.target_position) <= 0.1);
     }
-    pub fn transition_board(&mut self, board : BoardLayout) {
+    pub fn transition_board(&mut self, board: BoardLayout) {
         self.target_height = board.height;
         self.target_width = board.width;
-        self.target_position = Vec2::new(board.x,board.y);
+        self.target_position = Vec2::new(board.x, board.y);
     }
-    pub fn absolute_board(&mut self, board : BoardLayout) {
-        self.set_absolute(board.width, board.height, Vec2::new(board.x,board.y));
+    pub fn absolute_board(&mut self, board: BoardLayout) {
+        self.set_absolute(board.width, board.height, Vec2::new(board.x, board.y));
     }
     pub fn set_absolute(&mut self, width: f32, height: f32, position: Vec2) {
         self.width = width;
@@ -152,22 +164,20 @@ impl BulletBoard {
         ));
     }
 
-    pub fn spawn_fill(
-        &mut self,
-        commands: &mut Commands,
-        render_layers: &Res<RenderLayerStorage>,
-    ) {
-        let mut scale = Vec2::new(self.width,self.height);
+    pub fn spawn_fill(&mut self, commands: &mut Commands, render_layers: &Res<RenderLayerStorage>) {
+        let mut scale = Vec2::new(self.width, self.height);
         let mut position = self.position;
-        let entity = commands.spawn((
-            Sprite::from_color(Color::srgba(1.,0.,0.,0.), scale),
-            Transform {
-                translation: Vec3::new(position.x, position.y, -1.0),
-                ..Default::default()
-            },
-            BulletBoardFill,
-            render_layers.pre.clone(),
-        )).id();
+        let entity = commands
+            .spawn((
+                Sprite::from_color(Color::srgba(1., 0., 0., 0.), scale),
+                Transform {
+                    translation: Vec3::new(position.x, position.y, -1.0),
+                    ..Default::default()
+                },
+                BulletBoardFill,
+                render_layers.pre.clone(),
+            ))
+            .id();
 
         self.fill = Some(entity);
     }
@@ -210,9 +220,6 @@ pub fn spawn_bullet_board(
         &render_layers,
         BulletBoardBorder::Bottom,
     );
-
-    
-
 }
 pub fn move_towards_vec(start: Vec2, end: Vec2, rate: f32) -> Vec2 {
     let direction = Vec2::normalize_or_zero(end - start);
@@ -256,11 +263,25 @@ fn update_bullet_board(
 
 fn update_bullet_board_fill(
     mut bullet_board: ResMut<BulletBoard>,
-    mut fill_query : Query<(&mut BulletBoardFill,&mut Transform)>
+    mut fill_query: Query<(&mut BulletBoardFill, &mut Transform)>,
 ) {
-    if let Ok((mut b,mut t)) = fill_query.single_mut() {
+    if let Ok((mut b, mut t)) = fill_query.single_mut() {
         t.translation.x = bullet_board.position.x;
         t.translation.y = bullet_board.position.y;
-        t.scale = Vec2::new(bullet_board.width,bullet_board.height).extend(1.0);
+        t.scale = Vec2::new(bullet_board.width, bullet_board.height).extend(1.0);
+    }
+}
+
+fn update_visibility(
+    mut bullet_board: ResMut<BulletBoard>,
+    mut player_query : Query<(&mut Visibility),With<Player>>
+) {
+    if let Ok(mut v) = player_query.single_mut() {
+        if bullet_board.stable() {
+            *v = Visibility::Visible;
+        }
+        else {
+            *v = Visibility::Hidden;
+        }
     }
 }

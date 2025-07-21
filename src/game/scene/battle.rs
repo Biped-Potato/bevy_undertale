@@ -2,35 +2,64 @@ use std::collections::HashMap;
 
 use bevy::{ecs::system::SystemId, prelude::*};
 
-use crate::game::{loading::loading::AssetManager, scene::{bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox}};
+use crate::game::{
+    loading::loading::AssetManager,
+    scene::{
+        bullet_board::BulletBoard,
+        decisions::{Decision, DecisionMenu, Decisions, remove_decisions},
+        menu::{MenuPlugin, MenuState},
+        menu_transition::MenuTransition,
+        progress::{Progress, ProgressPlugin},
+        selection::MenuOption,
+        text::TextBox,
+    },
+};
 
 pub struct BattlePlugin;
 impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .init_resource::<BattleEvents>()
-            .add_plugins((
-            MenuPlugin,
-            ProgressPlugin
-        ));
+        app.init_resource::<BattleEvents>()
+            .add_plugins((MenuPlugin, ProgressPlugin));
     }
+}
+
+
+#[derive(Clone)]
+pub struct Attack {
+    pub enter_attack : Option<SystemId>,
+    pub attack : Option<SystemId>,
+    pub exit_attack : Option<SystemId>,
+}
+
+impl Attack {
+    pub fn enter(&mut self,commands : &mut Commands) {
+        commands.run_system(self.enter_attack.unwrap());
+    }
+
 }
 
 #[derive(Resource)]
 pub struct BattleEvents {
-    pub events : HashMap<String, SystemId>,
-    pub attack_transitions : Vec<SystemId>,
+    pub events: HashMap<String, SystemId>,
+    pub advance_attacks : SystemId,
+    pub attacks : Vec<Attack>,
 }
 impl FromWorld for BattleEvents {
     fn from_world(world: &mut World) -> Self {
         let mut events = HashMap::new();
-        let mut attack_transitions = vec![
-            world.register_system(attack_1)
+        let mut attacks = vec![
+            Attack {
+                enter_attack : Some(world.register_system(enter_attack_1)),
+                attack : None,
+                exit_attack : None,
+            }
+            
         ];
-        
+
         Self {
-            events : events,
-            attack_transitions : attack_transitions,
+            advance_attacks :world.register_system(enter_planned_attack),
+            events: events,
+            attacks : attacks,
         }
     }
 }
@@ -43,68 +72,109 @@ impl FromWorld for Decisions {
         let mut item_menu = DecisionMenu::default();
         let mut mercy_menu = DecisionMenu::default();
 
-        fight_menu.left_column.push(Decision::new("Dummy".to_string(),world.register_system(start_fight)));
+        fight_menu.left_column.push(Decision::new(
+            "Dummy".to_string(),
+            world.register_system(start_fight),
+        ));
 
         let mut act_sub_menu = DecisionMenu::default();
-        
-        act_sub_menu.left_column.push(Decision::new("Check".to_string(),world.register_system(check)));
-        act_sub_menu.right_column.push(Decision::new("Talk".to_string(),world.register_system(talk)));
 
-        act_menu.left_column.push(Decision::new_with_menu("Dummy".to_string(),Some(act_sub_menu)));
+        act_sub_menu.left_column.push(Decision::new(
+            "Check".to_string(),
+            world.register_system(check),
+        ));
+        act_sub_menu.right_column.push(Decision::new(
+            "Talk".to_string(),
+            world.register_system(talk),
+        ));
 
+        act_menu.left_column.push(Decision::new_with_menu(
+            "Dummy".to_string(),
+            Some(act_sub_menu),
+        ));
 
-        menu.insert(MenuOption::Fight,fight_menu);
+        item_menu.left_column.push(
+            Decision::new("Monster Candy".to_string(),world.register_system(item))
+        );
+
+        mercy_menu.left_column.push(
+            Decision::new("Spare".to_string(),world.register_system(item))
+        );
+
+        mercy_menu.left_column.push(
+            Decision::new("Flee".to_string(),world.register_system(item))
+        );
+        menu.insert(MenuOption::Fight, fight_menu);
         menu.insert(MenuOption::Act, act_menu);
-        menu.insert(MenuOption::Item,item_menu);
+        menu.insert(MenuOption::Item, item_menu);
         menu.insert(MenuOption::Mercy, mercy_menu);
-        
-        
+
         Self {
-            remove_decisions : Some(world.register_system(remove_decisions)),
-            menu : menu,
-            decision_menu : None,
-            menu_entities : default(),
-            side : 0,
-            selection : 0,
-            switch_menu : false,
-            submenu : false,
-            increment : 0.,
-            spacing : 0.,
+            remove_decisions: Some(world.register_system(remove_decisions)),
+            menu: menu,
+            decision_menu: None,
+            menu_entities: default(),
+            side: 0,
+            selection: 0,
+            switch_menu: false,
+            submenu: false,
+            increment: 0.,
+            spacing: 0.,
         }
     }
 }
 
 fn start_fight(
-    mut bullet_board : Res<BulletBoard>,
-    mut text_box : ResMut<TextBox>,
-    asset_manager : Res<AssetManager>,
+    mut bullet_board: Res<BulletBoard>,
+    mut text_box: ResMut<TextBox>,
+    mut menu_transition: ResMut<MenuTransition>,
+    asset_manager: Res<AssetManager>,
 ) {
-
+    menu_transition.new_state(MenuState::Fight);
 }
 
 fn talk(
-    mut commands : Commands,
-    mut decisions : ResMut<Decisions>,
-    mut text_box : ResMut<TextBox>,
-    mut battle_events : ResMut<BattleEvents>,
-    mut menu_transition : ResMut<MenuTransition>,
-    progress : Res<Progress>,
-    asset_manager : Res<AssetManager>,
+    mut commands: Commands,
+    mut decisions: ResMut<Decisions>,
+    mut text_box: ResMut<TextBox>,
+    mut battle_events: ResMut<BattleEvents>,
+    mut menu_transition: ResMut<MenuTransition>,
+    progress: Res<Progress>,
+    asset_manager: Res<AssetManager>,
 ) {
     commands.run_system(decisions.remove_decisions.unwrap());
     menu_transition.new_state(MenuState::Text);
-    text_box.queue_event(asset_manager.dialogue_storage["talk"].clone(), battle_events.attack_transitions[progress.turns as usize]);
+    text_box.queue_event(
+        asset_manager.dialogue_storage["talk"].clone(),
+        battle_events.advance_attacks,
+    );
 }
 
-fn attack_1(
-    mut menu_transition : ResMut<MenuTransition>,
+fn enter_planned_attack(
+    mut commands: Commands,
+    mut battle_events: ResMut<BattleEvents>,
+    mut progress : ResMut<Progress>,
+    mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board : ResMut<BulletBoard>,
+    mut decisions : ResMut<Decisions>,
     asset_manager : Res<AssetManager>,
 ) {
+    commands.run_system(decisions.remove_decisions.unwrap());
     menu_transition.new_state(MenuState::Dodging);
-    bullet_board.transition_board(asset_manager.board_layouts["battle_1"].clone());
+    let mut attack = battle_events.attacks[progress.turns as usize].clone();
+    attack.enter(&mut commands);
 }
 
-fn check() {
+fn enter_attack_1(
+    mut menu_transition: ResMut<MenuTransition>,
+    mut bullet_board: ResMut<BulletBoard>,
+    asset_manager: Res<AssetManager>,
+) {
+    bullet_board.transition_board(asset_manager.board_layouts["battle_1"].clone());
     
+}
+fn item() {}
+
+fn check() {
+
 }

@@ -9,15 +9,21 @@ use crate::game::{
 #[derive(Resource, Deserialize, Clone, Default)]
 pub struct Data {
     pub assets: AssetData,
-    pub game : GameData,
+    pub game: GameData,
 }
 
 #[derive(Deserialize, Clone, Default)]
 pub struct GameData {
     pub player: PlayerData,
     pub dialogue: DialogueData,
-    pub battle : BattleData,
-    pub board_layouts : BoardLayouts,
+    pub battle: BattleData,
+    pub fight_bar : FightBarData,
+    pub board_layouts: BoardLayouts,
+}
+#[derive(Deserialize, Clone, Default)]
+pub struct FightBarData {
+    pub fade_time : f32,
+    pub attack_animation : f32,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct BattleData {
@@ -25,17 +31,16 @@ pub struct BattleData {
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct BoardLayouts {
-    pub layouts : Vec<BoardLayout>
+    pub layouts: Vec<BoardLayout>,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct BoardLayout {
-    pub name : String,
-    pub x : f32,
-    pub y : f32,
-    pub width : f32,
-    pub height : f32,
+    pub name: String,
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
 }
-
 
 #[derive(Deserialize, Clone, Default)]
 pub struct DialogueData {
@@ -62,6 +67,7 @@ pub struct PlayerData {
     pub health: i32,
     pub iframes: f32,
     pub damage: i32,
+    pub attack_speed : f32,
 }
 
 #[derive(Deserialize, Clone)]
@@ -106,7 +112,7 @@ pub fn setup_data(mut commands: Commands, mut data_res: ResMut<Data>) {
     let asset_data: Option<AssetData> = read_toml(asset_contents);
 
     let contents = include_str!("../../../assets/data/data.toml").to_string();
-    let data : Option<GameData> = read_toml(contents);
+    let data: Option<GameData> = read_toml(contents);
 
     log::info!("try loading data");
     if asset_data.is_some() {

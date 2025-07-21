@@ -11,6 +11,12 @@ health = 20
 name = "FRISK"
 iframes = 0.5
 damage = 1
+attack_speed = 11.0
+
+[fight_bar]
+fade_time = 1.0
+attack_animation = 2.0
+
 
 [[dialogue.dialogues]]
 name = "battle_start"

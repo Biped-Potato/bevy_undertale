@@ -6,7 +6,9 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     player::player::Player,
-    scene::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition, text::TextBox},
+    scene::{
+        bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition, text::TextBox,
+    },
     state::state::AppState,
 };
 
@@ -51,6 +53,10 @@ impl Plugin for MenuSelectPlugin {
             ],
         })
         .add_systems(OnEnter(AppState::Level), spawn_buttons)
+        .add_systems(
+            OnEnter(MenuState::Selection),
+            refresh_textbox.run_if(in_state(AppState::Level)),
+        )
         .add_systems(PreStartup, init_bullet_board_size)
         .add_systems(
             Update,
@@ -63,10 +69,14 @@ pub fn init_bullet_board_size(mut bullet_board: ResMut<BulletBoard>) {
     bullet_board.set_absolute(565.0, 130.0, Vec2::new(0., -80.));
 }
 
+fn refresh_textbox(mut commands: Commands, text_box: Res<TextBox>) {
+    commands.run_system(text_box.refresh_text.unwrap());
+}
 fn update_selection(
-    mut menu: ResMut<MenuSelect>, input: Res<ButtonInput<KeyCode>>,
-    mut menu_transition : ResMut<MenuTransition>,
-    mut text_box : ResMut<TextBox>,
+    mut menu: ResMut<MenuSelect>,
+    input: Res<ButtonInput<KeyCode>>,
+    mut menu_transition: ResMut<MenuTransition>,
+    mut text_box: ResMut<TextBox>,
 ) {
     if input.just_pressed(KeyCode::ArrowLeft) {
         menu.cycle(-1);

@@ -1,11 +1,12 @@
+pub mod battle;
 pub mod bullet_board;
+pub mod decisions;
 pub mod dodging;
 pub mod menu;
+pub mod menu_transition;
+pub mod progress;
 pub mod scene;
 pub mod selection;
 pub mod stats;
-pub mod decisions;
 pub mod text;
-pub mod progress;
-pub mod battle;
-pub mod menu_transition;
+pub mod fight;

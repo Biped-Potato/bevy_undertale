@@ -108,7 +108,7 @@ fn setup(
             }),
             Tonemapping::None,
             Bloom {
-                intensity: 0.1,
+                intensity: 0.0,
                 ..Default::default()
             },
             Msaa::Off,

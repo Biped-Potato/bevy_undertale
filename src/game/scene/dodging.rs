@@ -1,29 +1,53 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemId, prelude::*};
 
 use crate::game::{
-    data::data::Data,
-    physics::physics_object::PhysicsComponent,
-    player::player::{Player, player_movement},
-    scene::{bullet_board::BulletBoard, menu::MenuState},
+    data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::{player_movement, Player}, scene::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition}
 };
 
 pub struct DodgingPlugin;
 impl Plugin for DodgingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            constrain_player
-                .after(player_movement)
-                .run_if(in_state(MenuState::Dodging)),
-        );
+        app.init_resource::<DodgingPhaseManager>()
+            .add_systems(
+                FixedUpdate,
+                constrain_player
+                    .after(player_movement)
+                    .run_if(in_state(MenuState::Dodging)),
+            )
+            .add_systems(
+                FixedUpdate,
+                update_dodging_phase.run_if(in_state(MenuState::Dodging)),
+            );
     }
 }
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct DodgingPhaseManager {
-    pub time : f32,
-    
+    pub time: f32,
+    pub enter_attack: Option<SystemId>,
+    pub attack: Option<SystemId>,
 }
-
+impl DodgingPhaseManager {
+    pub fn queue_attack() {
+        
+    }
+}
+fn update_dodging_phase(
+    mut commands: Commands,
+    mut dodging_manager: ResMut<DodgingPhaseManager>,
+    mut time: Res<Time<Fixed>>,
+    mut menu_transition: ResMut<MenuTransition>,
+    mut bullet_board: ResMut<BulletBoard>,
+    asset_manager : Res<AssetManager>,
+) {
+    if dodging_manager.attack.is_some() {
+        commands.run_system(dodging_manager.attack.unwrap());
+    }
+    dodging_manager.time -= time.delta_secs();
+    if dodging_manager.time <= 0. {
+        menu_transition.new_state(MenuState::Selection);
+        bullet_board.transition_board(asset_manager.board_layouts["selection"].clone());
+    }
+}
 
 fn constrain_player(
     mut bullet_board: ResMut<BulletBoard>,

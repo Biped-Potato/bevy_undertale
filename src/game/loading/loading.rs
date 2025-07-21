@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 use crate::game::{
     animation::animation::Animation,
-    data::data::{setup_data, BoardLayout, Data, DialogueSet},
+    data::data::{BoardLayout, Data, DialogueSet, setup_data},
     state::state::AppState,
 };
 
@@ -32,7 +32,7 @@ pub struct AssetManager {
     pub sounds: HashMap<String, SoundAsset>,
     pub animations: HashMap<String, HashMap<String, Animation>>,
     pub dialogue_storage: HashMap<String, DialogueSet>,
-    pub board_layouts : HashMap<String, BoardLayout>,
+    pub board_layouts: HashMap<String, BoardLayout>,
 }
 impl AssetManager {
     pub fn check_ready(&mut self, asset_server: &Res<AssetServer>) -> bool {
@@ -140,10 +140,12 @@ fn load_assets(
             .dialogue_storage
             .insert(set.name.clone(), set.clone());
     }
-    
+
     for i in 0..boards.len() {
         let board = boards[i].clone();
-        asset_manager.board_layouts.insert(board.name.clone(),board);
+        asset_manager
+            .board_layouts
+            .insert(board.name.clone(), board);
     }
 }
 
