@@ -4,7 +4,7 @@ use bevy::{ecs::system::SystemId, prelude::*};
 
 use crate::game::{
     loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::{
-        attack::Attack, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
+        attack::Attack, attacks::{attack_1, enter_attack_1, AttacksPlugin}, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
     }
 };
 
@@ -15,6 +15,7 @@ impl Plugin for BattlePlugin {
             MenuPlugin,
             OpponentPlugin,
             ProgressPlugin,
+            AttacksPlugin,
         ));
     }
 }
@@ -30,7 +31,7 @@ impl FromWorld for BattleEvents {
         let mut events = HashMap::new();
         let mut attacks = vec![Attack {
             enter_attack: Some(world.register_system(enter_attack_1)),
-            attack: None,
+            attack: Some(world.register_system(attack_1)),
             exit_attack: None,
         }];
 
@@ -140,7 +141,7 @@ pub fn spawn_opponent(
             image : asset_manager.images["sprites/bipedpotato.png"].clone(),
             ..Default::default()
         },
-        PhysicsComponent{ position: Vec2::ZERO },
+        PhysicsComponent::new(Vec2::ZERO),
         Opponent{}
     ));
 }
@@ -151,30 +152,17 @@ fn enter_planned_attack(
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
     mut decisions: ResMut<Decisions>,
+    mut dodging_manager : ResMut<DodgingPhaseManager>,
     asset_manager: Res<AssetManager>,
 ) {
     commands.run_system(decisions.remove_decisions.unwrap());
     menu_transition.new_state(MenuState::Dodging);
     let mut attack = battle_events.attacks[progress.turns as usize].clone();
     attack.enter(&mut commands);
+    dodging_manager.attack = attack.attack;
     progress.turns += 1;
 }
 
-fn enter_attack_1(
-    mut menu_transition: ResMut<MenuTransition>,
-    mut bullet_board: ResMut<BulletBoard>,
-    mut dodge_manager : ResMut<DodgingPhaseManager>,
-    asset_manager: Res<AssetManager>,
-) {
-    bullet_board.transition_board(asset_manager.board_layouts["battle_1"].clone());
-    dodge_manager.time = 10.0;
-}
-
-fn attack_1(
-
-) {
-
-}
 
 fn item() {}
 

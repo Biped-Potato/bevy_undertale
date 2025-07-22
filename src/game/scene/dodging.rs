@@ -27,7 +27,6 @@ impl Plugin for DodgingPlugin {
 #[derive(Resource, Default)]
 pub struct DodgingPhaseManager {
     pub time: f32,
-    pub enter_attack: Option<SystemId>,
     pub attack: Option<SystemId>,
 }
 impl DodgingPhaseManager {
@@ -41,13 +40,16 @@ fn update_dodging_phase(
     mut bullet_board: ResMut<BulletBoard>,
     asset_manager: Res<AssetManager>,
 ) {
-    if dodging_manager.attack.is_some() {
-        commands.run_system(dodging_manager.attack.unwrap());
-    }
+    
     dodging_manager.time -= time.delta_secs();
     if dodging_manager.time <= 0. {
         menu_transition.new_state(MenuState::Selection);
         bullet_board.transition_board(asset_manager.board_layouts["selection"].clone());
+    }
+    else {
+        if dodging_manager.attack.is_some() {
+            commands.run_system(dodging_manager.attack.unwrap());
+        }
     }
 }
 
