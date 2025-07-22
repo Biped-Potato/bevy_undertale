@@ -17,19 +17,20 @@ attack_speed = 11.0
 fade_time = 1.0
 attack_animation = 2.0
 
+[opponent_data]
+height = 76.0
+width = 100.0
 
 [[dialogue.dialogues]]
 name = "battle_start"
 dialogue = [
-    "You encountered the Dummy",
+    "You encountered a Biped Potato",
 ]
 
 [[dialogue.dialogues]]
 name = "talk"
 dialogue = [
-    "You talk to the DUMMY. ...",
-    "It doesn't seem much for conversation.",
-    "TORIEL seems happy with you."
+    "You talk to the POTATO",
 ]
 
 [battle]

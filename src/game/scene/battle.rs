@@ -3,63 +3,41 @@ use std::collections::HashMap;
 use bevy::{ecs::system::SystemId, prelude::*};
 
 use crate::game::{
-    loading::loading::AssetManager,
-    scene::{
-        bullet_board::BulletBoard,
-        decisions::{Decision, DecisionMenu, Decisions, remove_decisions},
-        menu::{MenuPlugin, MenuState},
-        menu_transition::MenuTransition,
-        progress::{Progress, ProgressPlugin},
-        selection::MenuOption,
-        text::TextBox,
-    },
+    loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::{
+        attack::Attack, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
+    }
 };
 
 pub struct BattlePlugin;
 impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<BattleEvents>()
-            .add_plugins((MenuPlugin, ProgressPlugin));
+        app.init_resource::<BattleEvents>().add_plugins((
+            MenuPlugin,
+            OpponentPlugin,
+            ProgressPlugin,
+        ));
     }
-}
-
-
-#[derive(Clone)]
-pub struct Attack {
-    pub enter_attack : Option<SystemId>,
-    pub attack : Option<SystemId>,
-    pub exit_attack : Option<SystemId>,
-}
-
-impl Attack {
-    pub fn enter(&mut self,commands : &mut Commands) {
-        commands.run_system(self.enter_attack.unwrap());
-    }
-
 }
 
 #[derive(Resource)]
 pub struct BattleEvents {
     pub events: HashMap<String, SystemId>,
-    pub advance_attacks : SystemId,
-    pub attacks : Vec<Attack>,
+    pub advance_attacks: SystemId,
+    pub attacks: Vec<Attack>,
 }
 impl FromWorld for BattleEvents {
     fn from_world(world: &mut World) -> Self {
         let mut events = HashMap::new();
-        let mut attacks = vec![
-            Attack {
-                enter_attack : Some(world.register_system(enter_attack_1)),
-                attack : None,
-                exit_attack : None,
-            }
-            
-        ];
+        let mut attacks = vec![Attack {
+            enter_attack: Some(world.register_system(enter_attack_1)),
+            attack: None,
+            exit_attack: None,
+        }];
 
         Self {
-            advance_attacks :world.register_system(enter_planned_attack),
+            advance_attacks: world.register_system(enter_planned_attack),
             events: events,
-            attacks : attacks,
+            attacks: attacks,
         }
     }
 }
@@ -93,17 +71,20 @@ impl FromWorld for Decisions {
             Some(act_sub_menu),
         ));
 
-        item_menu.left_column.push(
-            Decision::new("Monster Candy".to_string(),world.register_system(item))
-        );
+        item_menu.left_column.push(Decision::new(
+            "Monster Candy".to_string(),
+            world.register_system(item),
+        ));
 
-        mercy_menu.left_column.push(
-            Decision::new("Spare".to_string(),world.register_system(item))
-        );
+        mercy_menu.left_column.push(Decision::new(
+            "Spare".to_string(),
+            world.register_system(item),
+        ));
 
-        mercy_menu.left_column.push(
-            Decision::new("Flee".to_string(),world.register_system(item))
-        );
+        mercy_menu.left_column.push(Decision::new(
+            "Flee".to_string(),
+            world.register_system(item),
+        ));
         menu.insert(MenuOption::Fight, fight_menu);
         menu.insert(MenuOption::Act, act_menu);
         menu.insert(MenuOption::Item, item_menu);
@@ -150,31 +131,51 @@ fn talk(
     );
 }
 
+pub fn spawn_opponent(
+    asset_manager: Res<AssetManager>,
+    mut commands : Commands,
+) {
+    commands.spawn((
+        Sprite {
+            image : asset_manager.images["sprites/bipedpotato.png"].clone(),
+            ..Default::default()
+        },
+        PhysicsComponent{ position: Vec2::ZERO },
+        Opponent{}
+    ));
+}
 fn enter_planned_attack(
     mut commands: Commands,
     mut battle_events: ResMut<BattleEvents>,
-    mut progress : ResMut<Progress>,
+    mut progress: ResMut<Progress>,
     mut menu_transition: ResMut<MenuTransition>,
-    mut bullet_board : ResMut<BulletBoard>,
-    mut decisions : ResMut<Decisions>,
-    asset_manager : Res<AssetManager>,
+    mut bullet_board: ResMut<BulletBoard>,
+    mut decisions: ResMut<Decisions>,
+    asset_manager: Res<AssetManager>,
 ) {
     commands.run_system(decisions.remove_decisions.unwrap());
     menu_transition.new_state(MenuState::Dodging);
     let mut attack = battle_events.attacks[progress.turns as usize].clone();
     attack.enter(&mut commands);
+    progress.turns += 1;
 }
 
 fn enter_attack_1(
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
+    mut dodge_manager : ResMut<DodgingPhaseManager>,
     asset_manager: Res<AssetManager>,
 ) {
     bullet_board.transition_board(asset_manager.board_layouts["battle_1"].clone());
-    
+    dodge_manager.time = 10.0;
 }
+
+fn attack_1(
+
+) {
+
+}
+
 fn item() {}
 
-fn check() {
-
-}
+fn check() {}

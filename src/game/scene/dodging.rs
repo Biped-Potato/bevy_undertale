@@ -1,7 +1,11 @@
 use bevy::{ecs::system::SystemId, prelude::*};
 
 use crate::game::{
-    data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::{player_movement, Player}, scene::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition}
+    data::data::Data,
+    loading::loading::AssetManager,
+    physics::physics_object::PhysicsComponent,
+    player::player::{Player, player_movement},
+    scene::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition},
 };
 
 pub struct DodgingPlugin;
@@ -27,9 +31,7 @@ pub struct DodgingPhaseManager {
     pub attack: Option<SystemId>,
 }
 impl DodgingPhaseManager {
-    pub fn queue_attack() {
-        
-    }
+    pub fn queue_attack() {}
 }
 fn update_dodging_phase(
     mut commands: Commands,
@@ -37,7 +39,7 @@ fn update_dodging_phase(
     mut time: Res<Time<Fixed>>,
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
-    asset_manager : Res<AssetManager>,
+    asset_manager: Res<AssetManager>,
 ) {
     if dodging_manager.attack.is_some() {
         commands.run_system(dodging_manager.attack.unwrap());

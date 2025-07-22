@@ -29,7 +29,7 @@ impl Plugin for BulletBoardPlugin {
 
             fill: None,
         })
-        .add_systems(PreUpdate,update_visibility.run_if(not_exception))
+        .add_systems(PreUpdate, update_visibility.run_if(not_exception))
         .add_systems(OnEnter(AppState::Level), spawn_bullet_board)
         .add_systems(
             FixedPreUpdate,
@@ -38,9 +38,7 @@ impl Plugin for BulletBoardPlugin {
     }
 }
 
-fn not_exception(
-    menu_state : Res<State<MenuState>>,
-) ->bool {
+fn not_exception(menu_state: Res<State<MenuState>>) -> bool {
     if *menu_state.get() == MenuState::Text || *menu_state.get() == MenuState::Fight {
         return false;
     }
@@ -274,13 +272,12 @@ fn update_bullet_board_fill(
 
 fn update_visibility(
     mut bullet_board: ResMut<BulletBoard>,
-    mut player_query : Query<(&mut Visibility),With<Player>>
+    mut player_query: Query<(&mut Visibility), With<Player>>,
 ) {
     if let Ok(mut v) = player_query.single_mut() {
         if bullet_board.stable() {
             *v = Visibility::Visible;
-        }
-        else {
+        } else {
             *v = Visibility::Hidden;
         }
     }

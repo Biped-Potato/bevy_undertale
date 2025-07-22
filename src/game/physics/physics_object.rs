@@ -3,7 +3,7 @@ use bevy::prelude::*;
 pub struct PhysicsLogicPlugin;
 impl Plugin for PhysicsLogicPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, snap_objects);
+        app.add_systems(PostUpdate, snap_objects);
     }
 }
 

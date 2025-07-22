@@ -1,7 +1,14 @@
 use bevy::prelude::*;
 
 use crate::game::scene::{
-    bullet_board::BulletBoardPlugin, decisions::DecisionPlugin, dodging::DodgingPlugin, fight::FightPlugin, menu_transition::MenuTransitionPlugin, selection::{MenuOption, MenuSelectPlugin}, stats::StatsPlugin, text::TextBoxPlugin
+    bullet_board::BulletBoardPlugin,
+    decisions::DecisionPlugin,
+    dodging::DodgingPlugin,
+    fight::FightPlugin,
+    menu_transition::MenuTransitionPlugin,
+    selection::{MenuOption, MenuSelectPlugin},
+    stats::StatsPlugin,
+    text::TextBoxPlugin,
 };
 
 pub struct MenuPlugin;

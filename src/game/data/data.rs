@@ -17,13 +17,20 @@ pub struct GameData {
     pub player: PlayerData,
     pub dialogue: DialogueData,
     pub battle: BattleData,
-    pub fight_bar : FightBarData,
+    pub fight_bar: FightBarData,
     pub board_layouts: BoardLayouts,
+    pub opponent_data : OpponentData,
+}
+
+#[derive(Deserialize, Clone, Default)]
+pub struct OpponentData {
+    pub height : f32,
+    pub width : f32,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct FightBarData {
-    pub fade_time : f32,
-    pub attack_animation : f32,
+    pub fade_time: f32,
+    pub attack_animation: f32,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct BattleData {
@@ -67,7 +74,7 @@ pub struct PlayerData {
     pub health: i32,
     pub iframes: f32,
     pub damage: i32,
-    pub attack_speed : f32,
+    pub attack_speed: f32,
 }
 
 #[derive(Deserialize, Clone)]
