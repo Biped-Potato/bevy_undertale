@@ -5,7 +5,7 @@ use crate::game::{
     data::data::Data,
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
-    scene::{bullet_board::BulletBoard, menu::MenuState, stats::spawn_stats},
+    scene::{internal::bullet_board::BulletBoard, internal::menu::MenuState, internal::stats::spawn_stats},
     state::state::AppState,
 };
 

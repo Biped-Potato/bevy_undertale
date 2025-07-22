@@ -19,7 +19,7 @@ use crate::game::{
         render_layers::RenderLayerStorage,
         target::{create_final_camera, create_image, render_image},
     },
-    scene::{battle::BattlePlugin, menu::MenuPlugin},
+    scene::{battle::BattlePlugin, internal::menu::MenuPlugin},
     state::state::AppState,
 };
 

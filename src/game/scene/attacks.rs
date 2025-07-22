@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::{loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::{bullet_board::BulletBoard, dodging::DodgingPhaseManager, menu_transition::MenuTransition}};
+use crate::game::{loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::internal::{bullet_board::BulletBoard, dodging::DodgingPhaseManager, menu_transition::MenuTransition}};
 
 pub struct AttacksPlugin;
 impl Plugin for AttacksPlugin {

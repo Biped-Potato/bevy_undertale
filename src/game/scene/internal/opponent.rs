@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    data::data::Data, physics::physics_object::PhysicsComponent, scene::{battle::spawn_opponent, bullet_board::BulletBoard}, state::state::AppState
+    data::data::Data, physics::physics_object::PhysicsComponent, scene::{battle::spawn_opponent, internal::bullet_board::BulletBoard}, state::state::AppState
 };
 
 pub struct OpponentPlugin;

@@ -5,7 +5,7 @@ use crate::game::{
     data::data::{Data, DialogueSet},
     loading::loading::AssetManager,
     player::player::Player,
-    scene::{
+    scene::internal::{
         bullet_board::{BulletBoard, BulletBoardFill, spawn_bullet_board},
         menu::MenuState,
         menu_transition::MenuTransition,

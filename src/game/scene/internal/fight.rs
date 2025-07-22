@@ -4,9 +4,10 @@ use crate::game::{
     data::data::Data,
     loading::loading::AssetManager,
     player::player::Player,
-    scene::{
-        battle::BattleEvents, bullet_board::{self, BulletBoard}, decisions::Decisions, menu::MenuState, menu_transition::MenuTransition, progress::Progress
-    },
+
+    scene::{battle::BattleEvents, internal::{
+       bullet_board::{self, BulletBoard}, decisions::Decisions, menu::MenuState, menu_transition::MenuTransition, progress::Progress
+    }},
     state::state::AppState,
 };
 
@@ -152,6 +153,7 @@ fn update_fight_bar(
 
         if fight.position >= bullet_board.width / 2.0 + bullet_board.border {
             fight.strike = true;
+            fight.attack_animation = 0.;
         }
     }
 }

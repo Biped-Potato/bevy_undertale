@@ -5,7 +5,7 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     player::player::{Player, player_movement},
-    scene::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition},
+    scene::internal::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition},
 };
 
 pub struct DodgingPlugin;

@@ -1,15 +1,3 @@
-pub mod attack;
-pub mod battle;
-pub mod bullet_board;
-pub mod decisions;
-pub mod dodging;
-pub mod fight;
-pub mod menu;
-pub mod menu_transition;
-pub mod opponent;
-pub mod progress;
-pub mod scene;
-pub mod selection;
-pub mod stats;
-pub mod text;
+pub mod internal;
 pub mod attacks;
+pub mod battle;

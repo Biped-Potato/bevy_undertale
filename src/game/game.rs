@@ -1,7 +1,7 @@
 use crate::game::{
     animation::animation::AtlasAnimationPlugin, camera::render_layers::RenderLayersPlugin,
     data::data::DataPlugin, loading::loading::AssetManagerPlugin, physics::physics::PhysicsPlugin,
-    scene::scene::ScenePlugin,
+    scene::internal::scene::ScenePlugin,
 };
 use bevy::prelude::*;
 use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};

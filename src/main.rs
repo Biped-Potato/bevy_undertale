@@ -7,7 +7,7 @@ use bevy::{
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use crate::game::{game::GamePlugin, scene::scene::Platform};
+use crate::game::{game::GamePlugin, scene::internal::scene::Platform};
 
 pub mod game;
 const AUDIO_SCALE: f32 = 1. / 100.0;

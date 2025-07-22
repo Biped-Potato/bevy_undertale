@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::scene::{
+use crate::game::scene::internal::{
     bullet_board::BulletBoardPlugin,
     decisions::DecisionPlugin,
     dodging::DodgingPlugin,

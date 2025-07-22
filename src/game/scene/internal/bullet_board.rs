@@ -6,7 +6,7 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     player::player::{Player, player_movement},
-    scene::menu::MenuState,
+    scene::internal::menu::MenuState,
     state::state::AppState,
 };
 

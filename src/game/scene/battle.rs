@@ -3,8 +3,9 @@ use std::collections::HashMap;
 use bevy::{ecs::system::SystemId, prelude::*};
 
 use crate::game::{
-    loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::{
-        attack::Attack, attacks::{attack_1, enter_attack_1, AttacksPlugin}, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
+    scene::attacks::{attack_1, enter_attack_1, AttacksPlugin},
+    loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::internal::{
+        attack::Attack, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
     }
 };
 

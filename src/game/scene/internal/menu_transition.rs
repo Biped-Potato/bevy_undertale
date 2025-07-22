@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    scene::{bullet_board::BulletBoard, menu::MenuState},
+    scene::internal::{bullet_board::BulletBoard, menu::MenuState},
     state::state::AppState,
 };
 

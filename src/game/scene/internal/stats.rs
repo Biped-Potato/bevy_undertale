@@ -2,7 +2,7 @@ use bevy::{prelude::*, text::TextBounds};
 
 use crate::game::{
     data::data::Data, loading::loading::AssetManager, player::player::PlayerStats,
-    scene::bullet_board::BulletBoard, state::state::AppState,
+    scene::internal::bullet_board::BulletBoard, state::state::AppState,
 };
 
 pub struct StatsPlugin;
