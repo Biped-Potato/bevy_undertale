@@ -26,8 +26,8 @@ pub fn enter_attack_1(
 ) {
     bullet_board.transition_board(asset_manager.board_layouts["battle_1"].clone());
     dodge_manager.time = 10.0;
-    attack.attack_time = 2.0;
-    attack.attack_timer = 2.0;
+    attack.attack_time = 1.0;
+    attack.attack_timer = 1.0;
     attack.attack_dir = 0;
 }
 
@@ -43,7 +43,8 @@ pub fn attack_1(
         attack.attack_timer = attack.attack_time;
         let mut dir = Vec2::ZERO;
         let mut spawn_dir = Vec2::ZERO;
-
+        let mut distance = bullet_board.width;
+        let mut line_up_distance = bullet_board.height;
         match attack.attack_dir {
             //left
             0 => {
@@ -52,6 +53,8 @@ pub fn attack_1(
             //top
             1 => {
                 spawn_dir = Vec2::new(0.,1.);
+                distance = bullet_board.height;
+                line_up_distance = bullet_board.width;
             }
             //right
             2 => {
@@ -60,6 +63,8 @@ pub fn attack_1(
             //bottom
             3 => {
                 spawn_dir = Vec2::new(0.,-1.);
+                distance = bullet_board.height;
+                line_up_distance = bullet_board.width;
             }
             _ => {
 
@@ -67,21 +72,30 @@ pub fn attack_1(
         }
 
         dir = -spawn_dir;
-        let spacing = 20.0;
-        let bullet_count = (bullet_board.width/spacing).ceil() as i32;
+        let spacing = 16.0;
+        let bullet_count = line_up_distance as i32/spacing as i32 - 1;
+
         let offset_dir = Vec2::new(spawn_dir.y,spawn_dir.x);
-        let mut start = spawn_dir * bullet_board.width + (offset_dir * spacing * bullet_count as f32 / 2.0);
-        let mut speed = 5.0;
+        let mut start = spawn_dir * distance / 2.0;
+        let mut half_size = Vec2::splat(3.0);
+        let mut physics_half_size = Vec2::splat(3.0);
+        start += offset_dir * (line_up_distance / 2.0 - spacing);
+        let mut speed = 4.0;
         
         for i in 0.. bullet_count {
-            if i != 4 {
+            if i != 1 {
                 let pos = start -offset_dir * spacing * i as f32; 
                 commands.spawn((
                     Sprite {
                         image : asset_manager.images["sprites/potato.png"].clone(),
                         ..Default::default()
                     },
-                    PhysicsComponent::new_full(bullet_board.position + pos,dir * speed,Vec2::splat(6.0),Vec2::splat(8.0)),
+                    PhysicsComponent::new_full(
+                        bullet_board.position + pos,
+                        dir * speed,
+                        half_size,
+                        physics_half_size
+                    ),
                 ));
                 
             }

@@ -55,6 +55,6 @@ height = 130.0
 [[board_layouts.layouts]]
 name = "battle_1"
 x = 0.0
-y = -80.0
-width = 155.0
-height = 130.0
+y = -73.0
+width = 160.0
+height = 144.0

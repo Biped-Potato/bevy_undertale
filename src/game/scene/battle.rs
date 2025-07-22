@@ -52,7 +52,7 @@ impl FromWorld for Decisions {
         let mut mercy_menu = DecisionMenu::default();
 
         fight_menu.left_column.push(Decision::new(
-            "Dummy".to_string(),
+            "Biped Potato".to_string(),
             world.register_system(start_fight),
         ));
 
@@ -68,7 +68,7 @@ impl FromWorld for Decisions {
         ));
 
         act_menu.left_column.push(Decision::new_with_menu(
-            "Dummy".to_string(),
+            "Biped Potato".to_string(),
             Some(act_sub_menu),
         ));
 
