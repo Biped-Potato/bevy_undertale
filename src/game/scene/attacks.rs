@@ -90,6 +90,7 @@ pub fn attack_1(
                         image : asset_manager.images["sprites/potato.png"].clone(),
                         ..Default::default()
                     },
+                    Transform::from_translation(Vec2::ZERO.extend(-1.0)),
                     PhysicsComponent::new_full(
                         bullet_board.position + pos,
                         dir * speed,

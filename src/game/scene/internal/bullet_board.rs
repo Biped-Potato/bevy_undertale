@@ -25,7 +25,7 @@ impl Plugin for BulletBoardPlugin {
             border: 5.0,
 
             expansion_rate: 20.0,
-            movement_rate: 4.0,
+            movement_rate: 1.0,
 
             fill: None,
         })
@@ -33,7 +33,7 @@ impl Plugin for BulletBoardPlugin {
         .add_systems(OnEnter(AppState::Level), spawn_bullet_board)
         .add_systems(
             FixedPreUpdate,
-            (update_bullet_board, update_bullet_board_fill),
+            (update_bullet_board, update_side_fills, update_bullet_board_fill),
         );
     }
 }
@@ -115,7 +115,18 @@ impl BulletBoard {
             self.position.y,
         )
     }
-
+    
+    fn get_offset(&mut self, dir : Vec2, amount : f32 ) -> Vec2 {
+        return self.position + dir * amount;
+    }
+    fn get_side_fill(&mut self,side_fill : &SideFill) -> Vec2 {
+        match side_fill {
+            SideFill::Right => self.get_offset(Vec2::new(1.,0.),self.width / 2.0 + 1000.0 / 2.0),
+            SideFill::Left => self.get_offset(Vec2::new(-1.,0.),self.width / 2.0 + 1000.0 / 2.0),
+            SideFill::Top => self.get_offset(Vec2::new(0.,1.),self.height / 2.0 + 1000.0 / 2.0),
+            SideFill::Bottom => self.get_offset(Vec2::new(0.,-1.),self.height / 2.0 + 1000.0 / 2.0),
+        }
+    }
     fn get_vert_size(&mut self) -> Vec2 {
         Vec2::new(self.width + self.border * 2.0, self.border)
     }
@@ -161,6 +172,27 @@ impl BulletBoard {
             render_layers.pre.clone(),
         ));
     }
+    fn spawn_side_fill(
+        &mut self,
+        commands: &mut Commands,
+        render_layers: &Res<RenderLayerStorage>,
+        side_fill : SideFill,
+    ) {
+        let mut scale = Vec2::splat(1000.);
+        let mut position = self.get_side_fill(&side_fill);
+        commands.spawn((
+            Sprite::from_color(Color::srgb(0.0, 0.0, 0.0), Vec2::ONE),
+            Transform {
+                translation: Vec3::new(position.x, position.y, -0.5),
+                scale: Vec3::new(scale.x, scale.y, 1.),
+                ..Default::default()
+            },
+            side_fill,
+            Name::new("Side"),
+            render_layers.pre.clone(),
+        ));
+    }
+
 
     pub fn spawn_fill(&mut self, commands: &mut Commands, render_layers: &Res<RenderLayerStorage>) {
         let mut scale = Vec2::new(self.width, self.height);
@@ -188,6 +220,17 @@ pub enum BulletBoardBorder {
     Top,
     Bottom,
 }
+
+#[derive(Component, Default, PartialEq)]
+pub enum SideFill {
+    #[default]
+    Right,
+    Left,
+    Top,
+    Bottom,
+}
+
+
 pub fn spawn_bullet_board(
     mut commands: Commands,
     mut bullet_board: ResMut<BulletBoard>,
@@ -217,6 +260,28 @@ pub fn spawn_bullet_board(
         &asset_manager,
         &render_layers,
         BulletBoardBorder::Bottom,
+    );
+
+    
+    bullet_board.spawn_side_fill(
+        &mut commands,
+        &render_layers,
+        SideFill::Bottom
+    );
+    bullet_board.spawn_side_fill(
+        &mut commands,
+        &render_layers,
+        SideFill::Top
+    );
+    bullet_board.spawn_side_fill(
+        &mut commands,
+        &render_layers,
+        SideFill::Right
+    );
+    bullet_board.spawn_side_fill(
+        &mut commands,
+        &render_layers,
+        SideFill::Left
     );
 }
 pub fn move_towards_vec(start: Vec2, end: Vec2, rate: f32) -> Vec2 {
@@ -270,6 +335,16 @@ fn update_bullet_board_fill(
     }
 }
 
+fn update_side_fills(
+    mut bullet_board: ResMut<BulletBoard>,
+    mut fill_query: Query<(&mut SideFill, &mut Transform)>,
+) {
+    for (mut s, mut t) in fill_query.iter_mut() {
+        let pos = bullet_board.get_side_fill(&s);
+        t.translation.x = pos.x;
+        t.translation.y = pos.y;
+    }
+}
 fn update_visibility(
     mut bullet_board: ResMut<BulletBoard>,
     mut player_query: Query<(&mut Visibility), With<Player>>,
