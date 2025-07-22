@@ -5,7 +5,10 @@ use crate::game::{
     data::data::Data,
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
-    scene::{internal::bullet_board::BulletBoard, internal::menu::MenuState, internal::stats::spawn_stats},
+    scene::{
+        internal::bullet_board::BulletBoard, internal::menu::MenuState,
+        internal::stats::spawn_stats,
+    },
     state::state::AppState,
 };
 
@@ -15,6 +18,9 @@ impl Plugin for PlayerPlugin {
         app.insert_resource(PlayerStats {
             health: 0,
             max_health: 0,
+            invincibility: 0.,
+            flash_animation: 0.,
+            interval: 0.1,
         })
         .add_systems(OnEnter(MenuState::Dodging), move_soul)
         .add_systems(OnEnter(AppState::Level), spawn_player.before(spawn_stats))
@@ -29,6 +35,10 @@ impl Plugin for PlayerPlugin {
 pub struct PlayerStats {
     pub health: i32,
     pub max_health: i32,
+    pub invincibility: f32,
+
+    pub flash_animation: f32,
+    pub interval: f32,
 }
 
 #[derive(Component)]
@@ -57,7 +67,15 @@ fn spawn_player(
             image: asset_manager.images[&data.game.player.sprite.clone()].clone(),
             ..Default::default()
         },
-        PhysicsComponent::new(bullet_board.position),
+        PhysicsComponent::new_full(
+            bullet_board.position,
+            Vec2::ZERO,
+            Vec2::new(data.game.player.half_size_x, data.game.player.half_size_y),
+            Vec2::new(
+                data.game.player.sprite_size_x,
+                data.game.player.sprite_size_y,
+            ),
+        ),
         render_layers.pre.clone(),
         Player {},
     ));

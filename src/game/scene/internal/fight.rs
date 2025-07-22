@@ -4,10 +4,16 @@ use crate::game::{
     data::data::Data,
     loading::loading::AssetManager,
     player::player::Player,
-
-    scene::{battle::BattleEvents, internal::{
-       bullet_board::{self, BulletBoard}, decisions::Decisions, menu::MenuState, menu_transition::MenuTransition, progress::Progress
-    }},
+    scene::{
+        battle::BattleEvents,
+        internal::{
+            bullet_board::{self, BulletBoard},
+            decisions::Decisions,
+            menu::MenuState,
+            menu_transition::MenuTransition,
+            progress::Progress,
+        },
+    },
     state::state::AppState,
 };
 
@@ -56,14 +62,14 @@ fn update_player_visibility(mut player_query: Query<(&mut Visibility), With<Play
     }
 }
 fn update_visibility(
-    mut commands : Commands,
+    mut commands: Commands,
     menu_state: Res<State<MenuState>>,
     mut fight: ResMut<FightManager>,
     mut fightbar_query: Query<(&mut Sprite, &mut Transform), With<FightBar>>,
     mut timing_query: Query<(&mut Visibility), With<TimingBar>>,
     mut menu_transition: ResMut<MenuTransition>,
-    mut battle : ResMut<BattleEvents>,
-    mut progress : ResMut<Progress>,
+    mut battle: ResMut<BattleEvents>,
+    mut progress: ResMut<Progress>,
     data: Res<Data>,
     time: Res<Time<Fixed>>,
 ) {

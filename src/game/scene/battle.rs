@@ -3,10 +3,25 @@ use std::collections::HashMap;
 use bevy::{ecs::system::SystemId, prelude::*};
 
 use crate::game::{
-    scene::attacks::{attack_1, enter_attack_1, AttacksPlugin},
-    loading::loading::AssetManager, physics::physics_object::PhysicsComponent, scene::internal::{
-        attack::Attack, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
-    }
+    loading::loading::AssetManager,
+    physics::physics_object::PhysicsComponent,
+    scene::{
+        attacks::{AttacksPlugin, attack_1, enter_attack_1},
+        internal::{
+            attack::Attack,
+            bullet_board::BulletBoard,
+            decisions::{Decision, DecisionMenu, Decisions, remove_decisions},
+            dodging::DodgingPhaseManager,
+            health::DamagePlugin,
+            helpers::despawn::DespawnPlugin,
+            menu::{MenuPlugin, MenuState},
+            menu_transition::MenuTransition,
+            opponent::{Opponent, OpponentPlugin},
+            progress::{Progress, ProgressPlugin},
+            selection::MenuOption,
+            text::TextBox,
+        },
+    },
 };
 
 pub struct BattlePlugin;
@@ -17,6 +32,8 @@ impl Plugin for BattlePlugin {
             OpponentPlugin,
             ProgressPlugin,
             AttacksPlugin,
+            DamagePlugin,
+            DespawnPlugin,
         ));
     }
 }
@@ -133,17 +150,14 @@ fn talk(
     );
 }
 
-pub fn spawn_opponent(
-    asset_manager: Res<AssetManager>,
-    mut commands : Commands,
-) {
+pub fn spawn_opponent(asset_manager: Res<AssetManager>, mut commands: Commands) {
     commands.spawn((
         Sprite {
-            image : asset_manager.images["sprites/bipedpotato.png"].clone(),
+            image: asset_manager.images["sprites/bipedpotato.png"].clone(),
             ..Default::default()
         },
         PhysicsComponent::new(Vec2::ZERO),
-        Opponent{}
+        Opponent {},
     ));
 }
 fn enter_planned_attack(
@@ -153,7 +167,7 @@ fn enter_planned_attack(
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
     mut decisions: ResMut<Decisions>,
-    mut dodging_manager : ResMut<DodgingPhaseManager>,
+    mut dodging_manager: ResMut<DodgingPhaseManager>,
     asset_manager: Res<AssetManager>,
 ) {
     commands.run_system(decisions.remove_decisions.unwrap());
@@ -163,7 +177,6 @@ fn enter_planned_attack(
     dodging_manager.attack = attack.attack;
     progress.turns += 1;
 }
-
 
 fn item() {}
 

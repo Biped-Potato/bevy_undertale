@@ -138,6 +138,7 @@ fn update_health_bar(
             HealthBar::Green => {
                 let healthbar_width = 1.0 + 1.2 * player_stats.health as f32;
                 t.translation.x = 245. + healthbar_width / 2.0 - box_size.x / 2.0;
+                t.scale.x = healthbar_width;
             }
             HealthBar::Red => {
                 let healthbar_width = 1.0 + 1.2 * player_stats.max_health as f32;

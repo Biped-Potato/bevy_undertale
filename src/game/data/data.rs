@@ -19,13 +19,13 @@ pub struct GameData {
     pub battle: BattleData,
     pub fight_bar: FightBarData,
     pub board_layouts: BoardLayouts,
-    pub opponent_data : OpponentData,
+    pub opponent_data: OpponentData,
 }
 
 #[derive(Deserialize, Clone, Default)]
 pub struct OpponentData {
-    pub height : f32,
-    pub width : f32,
+    pub height: f32,
+    pub width: f32,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct FightBarData {

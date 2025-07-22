@@ -9,7 +9,7 @@ speed = 4.3
 sprite = "sprites/soul.png"
 health = 20
 name = "FRISK"
-iframes = 0.5
+iframes = 1.0
 damage = 1
 attack_speed = 11.0
 

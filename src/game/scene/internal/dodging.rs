@@ -5,7 +5,9 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     player::player::{Player, player_movement},
-    scene::internal::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition},
+    scene::internal::{
+        bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition,
+    },
 };
 
 pub struct DodgingPlugin;
@@ -40,13 +42,11 @@ fn update_dodging_phase(
     mut bullet_board: ResMut<BulletBoard>,
     asset_manager: Res<AssetManager>,
 ) {
-    
     dodging_manager.time -= time.delta_secs();
     if dodging_manager.time <= 0. {
         menu_transition.new_state(MenuState::Selection);
         bullet_board.transition_board(asset_manager.board_layouts["selection"].clone());
-    }
-    else {
+    } else {
         if dodging_manager.attack.is_some() {
             commands.run_system(dodging_manager.attack.unwrap());
         }
