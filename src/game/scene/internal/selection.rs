@@ -7,7 +7,7 @@ use crate::game::{
     physics::physics_object::PhysicsComponent,
     player::player::Player,
     scene::internal::{
-        bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition, text::TextBox,
+        bullet_board::BulletBoard, helpers::despawn::DespawnInMenu, menu::MenuState, menu_transition::MenuTransition, text::TextBox
     },
     state::state::AppState,
 };
@@ -55,7 +55,7 @@ impl Plugin for MenuSelectPlugin {
         .add_systems(OnEnter(AppState::Level), spawn_buttons)
         .add_systems(
             OnEnter(MenuState::Selection),
-            refresh_textbox.run_if(in_state(AppState::Level)),
+            (refresh_textbox).run_if(in_state(AppState::Level)),
         )
         .add_systems(PreStartup, init_bullet_board_size)
         .add_systems(

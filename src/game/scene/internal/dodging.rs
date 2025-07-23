@@ -4,10 +4,10 @@ use crate::game::{
     data::data::Data,
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
-    player::player::{Player, player_movement},
-    scene::internal::{
+    player::player::{player_movement, Player},
+    scene::{battle::BattleEvents, internal::{
         bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition,
-    },
+    }},
 };
 
 pub struct DodgingPlugin;
@@ -40,12 +40,14 @@ fn update_dodging_phase(
     mut time: Res<Time<Fixed>>,
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
+    mut battle_events : ResMut<BattleEvents>,
     asset_manager: Res<AssetManager>,
 ) {
     dodging_manager.time -= time.delta_secs();
     if dodging_manager.time <= 0. {
         menu_transition.new_state(MenuState::Selection);
         bullet_board.transition_board(asset_manager.board_layouts["selection"].clone());
+        commands.run_system(battle_events.despawn_projectiles);
     } else {
         if dodging_manager.attack.is_some() {
             commands.run_system(dodging_manager.attack.unwrap());

@@ -4,7 +4,7 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     scene::internal::{
-        bullet_board::BulletBoard, dodging::DodgingPhaseManager, health::Damage, menu_transition::MenuTransition
+        bullet_board::BulletBoard, dodging::DodgingPhaseManager, health::Damage, helpers::despawn::DespawnInMenu, menu_transition::MenuTransition
     },
 };
 
@@ -83,7 +83,7 @@ pub fn attack_1(
         let mut half_size = Vec2::splat(3.0);
         let mut physics_half_size = Vec2::splat(3.0);
         start += offset_dir * (line_up_distance / 2.0 - spacing);
-        let mut speed = 4.0;
+        let mut speed = 3.0;
 
         for i in 0..bullet_count {
             if i != 1 {
@@ -100,6 +100,7 @@ pub fn attack_1(
                         half_size,
                         physics_half_size,
                     ),
+                    DespawnInMenu,
                     Damage{
                         damage : 5
                     },

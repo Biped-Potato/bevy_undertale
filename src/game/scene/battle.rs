@@ -6,14 +6,14 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     scene::{
-        attacks::{AttacksPlugin, attack_1, enter_attack_1},
+        attacks::{attack_1, enter_attack_1, AttacksPlugin},
         internal::{
             attack::Attack,
             bullet_board::BulletBoard,
-            decisions::{Decision, DecisionMenu, Decisions, remove_decisions},
+            decisions::{remove_decisions, Decision, DecisionMenu, Decisions},
             dodging::DodgingPhaseManager,
             health::DamagePlugin,
-            helpers::despawn::DespawnPlugin,
+            helpers::despawn::{despawn_objects, DespawnPlugin},
             menu::{MenuPlugin, MenuState},
             menu_transition::MenuTransition,
             opponent::{Opponent, OpponentPlugin},
@@ -43,6 +43,7 @@ pub struct BattleEvents {
     pub events: HashMap<String, SystemId>,
     pub advance_attacks: SystemId,
     pub attacks: Vec<Attack>,
+    pub despawn_projectiles : SystemId,
 }
 impl FromWorld for BattleEvents {
     fn from_world(world: &mut World) -> Self {
@@ -57,6 +58,7 @@ impl FromWorld for BattleEvents {
             advance_attacks: world.register_system(enter_planned_attack),
             events: events,
             attacks: attacks,
+            despawn_projectiles : world.register_system(despawn_objects)
         }
     }
 }

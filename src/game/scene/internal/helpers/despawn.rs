@@ -13,6 +13,10 @@ pub struct DespawnInTime {
     pub time: f32,
 }
 
+#[derive(Component)]
+pub struct DespawnInMenu;
+
+
 fn update_despawn(
     mut commands: Commands,
     mut despawn_query: Query<(&mut DespawnInTime, Entity)>,
@@ -26,5 +30,15 @@ fn update_despawn(
             }
             commands.entity(e).despawn();
         }
+    }
+}
+
+
+pub fn despawn_objects(
+    mut query : Query<(&mut DespawnInMenu,Entity)>,
+    mut commands : Commands,
+) {
+    for(mut despawn, e) in query.iter_mut() {
+        commands.entity(e).despawn();
     }
 }
