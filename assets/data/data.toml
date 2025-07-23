@@ -42,6 +42,9 @@ dialogue = [
 [battle]
 dialogues = [
     "battle_start",
+    "1",
+    "1",
+    "1",
     "1"
 ]
 
@@ -58,3 +61,11 @@ x = 0.0
 y = -73.0
 width = 160.0
 height = 144.0
+
+
+[[board_layouts.layouts]]
+name = "shovel_tunnel"
+x = 0.0
+y = -105.0
+width = 80.0
+height = 80.0

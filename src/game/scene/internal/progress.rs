@@ -14,6 +14,6 @@ pub struct Progress {
 
 impl Default for Progress {
     fn default() -> Self {
-        Self { turns: 0 }
+        Self { turns: 1 }
     }
 }

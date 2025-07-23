@@ -4,16 +4,18 @@ use crate::game::{
     data::data::Data,
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
-    player::player::{player_movement, Player},
-    scene::{battle::BattleEvents, internal::{
-        bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition,
-    }},
+    player::player::{Player, player_movement},
+    scene::{
+        battle::BattleEvents,
+        internal::{bullet_board::BulletBoard, menu::MenuState, menu_transition::MenuTransition},
+    },
 };
 
 pub struct DodgingPlugin;
 impl Plugin for DodgingPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DodgingPhaseManager>()
+            .add_systems(OnEnter(MenuState::Dodging), init_attack.before(update_dodging_phase))
             .add_systems(
                 FixedUpdate,
                 constrain_player
@@ -30,9 +32,21 @@ impl Plugin for DodgingPlugin {
 pub struct DodgingPhaseManager {
     pub time: f32,
     pub attack: Option<SystemId>,
+    pub init_attack : Option<SystemId>,
 }
 impl DodgingPhaseManager {
     pub fn queue_attack() {}
+}
+
+fn init_attack(
+    mut commands: Commands,
+    mut dodging_manager: ResMut<DodgingPhaseManager>,
+) {
+    if dodging_manager.init_attack.is_some() {
+        let init = dodging_manager.init_attack.unwrap();
+        commands.run_system(init);
+    }
+    
 }
 fn update_dodging_phase(
     mut commands: Commands,
@@ -40,7 +54,7 @@ fn update_dodging_phase(
     mut time: Res<Time<Fixed>>,
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
-    mut battle_events : ResMut<BattleEvents>,
+    mut battle_events: ResMut<BattleEvents>,
     asset_manager: Res<AssetManager>,
 ) {
     dodging_manager.time -= time.delta_secs();

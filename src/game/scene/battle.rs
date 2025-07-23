@@ -6,7 +6,7 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     scene::{
-        attacks::{attack_1, enter_attack_1, AttacksPlugin},
+        attacks::{attack_1, enter_attack_1, enter_shovel_attack, shovel_attack, spawn_shovels, AttacksPlugin},
         internal::{
             attack::Attack,
             bullet_board::BulletBoard,
@@ -43,22 +43,31 @@ pub struct BattleEvents {
     pub events: HashMap<String, SystemId>,
     pub advance_attacks: SystemId,
     pub attacks: Vec<Attack>,
-    pub despawn_projectiles : SystemId,
+    pub despawn_projectiles: SystemId,
 }
 impl FromWorld for BattleEvents {
     fn from_world(world: &mut World) -> Self {
         let mut events = HashMap::new();
-        let mut attacks = vec![Attack {
-            enter_attack: Some(world.register_system(enter_attack_1)),
-            attack: Some(world.register_system(attack_1)),
-            exit_attack: None,
-        }];
+        let mut attacks = vec![
+            Attack {
+                enter_attack: Some(world.register_system(enter_attack_1)),
+                init_attack : None,
+                attack: Some(world.register_system(attack_1)),
+                exit_attack: None,
+            },
+            Attack {
+                enter_attack: Some(world.register_system(enter_shovel_attack)),
+                init_attack : Some(world.register_system(spawn_shovels)),
+                attack: Some(world.register_system(shovel_attack)),
+                exit_attack: None,
+            },
+        ];
 
         Self {
             advance_attacks: world.register_system(enter_planned_attack),
             events: events,
             attacks: attacks,
-            despawn_projectiles : world.register_system(despawn_objects)
+            despawn_projectiles: world.register_system(despawn_objects),
         }
     }
 }
@@ -177,6 +186,7 @@ fn enter_planned_attack(
     let mut attack = battle_events.attacks[progress.turns as usize].clone();
     attack.enter(&mut commands);
     dodging_manager.attack = attack.attack;
+    dodging_manager.init_attack = attack.init_attack;
     progress.turns += 1;
 }
 

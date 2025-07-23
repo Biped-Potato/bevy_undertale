@@ -7,7 +7,8 @@ use crate::game::{
     physics::physics_object::PhysicsComponent,
     player::player::Player,
     scene::internal::{
-        bullet_board::BulletBoard, helpers::despawn::DespawnInMenu, menu::MenuState, menu_transition::MenuTransition, text::TextBox
+        bullet_board::BulletBoard, helpers::despawn::DespawnInMenu, menu::MenuState,
+        menu_transition::MenuTransition, text::TextBox,
     },
     state::state::AppState,
 };
