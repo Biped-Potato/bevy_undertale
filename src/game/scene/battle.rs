@@ -161,7 +161,9 @@ pub fn spawn_opponent(asset_manager: Res<AssetManager>, mut commands: Commands) 
             ..Default::default()
         },
         PhysicsComponent::new(Vec2::ZERO),
-        Opponent {},
+        Opponent {
+            offset : Vec2::ZERO,
+        },
     ));
 }
 fn enter_planned_attack(
