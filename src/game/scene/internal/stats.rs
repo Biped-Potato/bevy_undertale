@@ -30,6 +30,8 @@ pub struct HealthBar
     pub health : i32,
     pub max_health : i32,
     pub position : Vec2,
+    pub custom_size : Option<IVec2>,
+    pub center : bool,
 }
 #[derive(Component)]
 pub struct HealthText;
@@ -125,10 +127,12 @@ pub fn spawn_stats(
         .with_scale(Vec2::new(healthbar_width, 21.0).extend(1.0)),
         HealthBarType::Red,
         HealthBar {
+            custom_size : None,
             enemy_bar : false,
             position : healthbar_position,
             health : 0,
             max_health : 0,
+            center : false,
         },
         PlayerHealthBar {}
     ));
@@ -142,16 +146,29 @@ pub fn spawn_stats(
         .with_scale(Vec2::new(healthbar_width, 21.0).extend(1.0)),
         HealthBarType::Green,
         HealthBar {
+            custom_size : None,
             enemy_bar : false,
             position : healthbar_position,
             health : 0,
             max_health : 0,
+            center : false,
         },
         PlayerHealthBar {}
     ));
 }
 
-
+impl HealthBar {
+    pub fn get_size_x(&mut self,amount : i32) -> f32 {
+        let mut healthbar_width = 1.0 + 1.2 * amount as f32;
+        if self.enemy_bar {
+            healthbar_width = 1.0 + 100.0 * amount as f32/ self.max_health as f32;
+        }
+        if self.custom_size.is_some() {
+            healthbar_width = self.custom_size.unwrap().x as f32 * amount as f32/ self.max_health as f32;
+        }
+        return healthbar_width;
+    }
+}
 fn update_health_bar(
     mut health_bar_query: Query<(&mut HealthBarType,&mut HealthBar, &mut Transform)>,
     player_stats_box: Res<PlayerStatsBox>,
@@ -159,26 +176,29 @@ fn update_health_bar(
 ) {
     let box_size = player_stats_box.box_size;
     for (mut h_t,mut h, mut t) in health_bar_query.iter_mut() {
+        let mut amount = 0;
+        
         match *h_t {
             HealthBarType::Green => {
-                let mut healthbar_width = 1.0 + 1.2 * h.health as f32;
-                if h.enemy_bar {
-                    healthbar_width = 1.0 + 100.0 * h.health as f32/h.max_health as f32;
-                }
-                t.translation.x = h.position.x + healthbar_width / 2.0;
-                t.translation.y = h.position.y;
-                t.scale.x = healthbar_width;
+                amount = h.health;
             }
             HealthBarType::Red => {
-                let mut healthbar_width = 1.0 + 1.2 * h.max_health as f32;
-                if h.enemy_bar {
-                    healthbar_width = 1.0 + 100.0 * h.max_health as f32/h.max_health as f32;
-                }
-                t.translation.x = h.position.x + healthbar_width / 2.0;
-                t.translation.y = h.position.y;
-                t.scale.x = healthbar_width;
+                amount = h.max_health;
             }
         }
+
+        let mut healthbar_width = h.get_size_x(amount);
+
+
+        t.translation.x = h.position.x + healthbar_width / 2.0;
+
+        if h.center {
+            let max_h = h.max_health;
+            let mut max_size = h.get_size_x(max_h);
+            t.translation.x -= max_size / 2.0;
+        }
+        t.translation.y = h.position.y;
+        t.scale.x = healthbar_width;
     }
 }
 

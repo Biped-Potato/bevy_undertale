@@ -74,10 +74,12 @@ fn spawn_bar(
         .with_scale(Vec2::new(healthbar_width, 21.0).extend(1.0)),
         HealthBarType::Red,
         HealthBar {
+            custom_size : None,
             enemy_bar : false,
             position : pos,
             health : 0,
             max_health : 0,
+            center : false,
         },
         EnemyHealthBar {
             text_entity : None,
@@ -93,10 +95,12 @@ fn spawn_bar(
         .with_scale(Vec2::new(healthbar_width, 21.0).extend(1.0)),
         HealthBarType::Green,
         HealthBar {
+            custom_size : None,
             enemy_bar : false,
             position : pos,
             health : 0,
             max_health : 0,
+            center : false,
         },
         EnemyHealthBar {
             text_entity : None,

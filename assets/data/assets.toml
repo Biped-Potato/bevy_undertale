@@ -14,11 +14,14 @@ images = [
     "sprites/bipedpotato.png",
 
     "sprites/potato.png",
-    "sprites/shovel.png"
+    "sprites/shovel.png",
+
+    "sprites/slash.png"
 ]
 atlases = [
     {name = "button", size_x = 110.0, size_y = 42.0, frame_count = 2},
     {name = "timing", size_x = 14.0, size_y = 128.0, frame_count = 2},
+    {name = "slash", size_x = 16.0, size_y = 94.0, frame_count = 7},
 ]
 sounds = [
     #{name = "dialogue", path = "sound/dialogue.wav", volume = 5.0}
@@ -27,7 +30,8 @@ fonts = [
     "fonts/Mars_Needs_Cunnilingus.ttf",
     "fonts/DTM-Mono.ttf",
     "fonts/DTM-Sans.ttf",
-    "fonts/8-BIT WONDER.ttf"
+    "fonts/8-BIT WONDER.ttf",
+    "fonts/Hachiro.ttf"
 ]
 
 
@@ -39,6 +43,21 @@ name = "monster"
     end = 1
     cooldown = 0.1
     looping = true
+
+[[animations]]
+name = "slash"
+    [[animations.group]]
+    name = "idle"
+    start = 7
+    end = 7
+    cooldown = 0.1
+    looping = true
+    [[animations.group]]
+    name = "slash"
+    start = 1
+    end = 6
+    cooldown = 0.166666666666
+    looping = false
 
 [[animations]]
 name = "button"
