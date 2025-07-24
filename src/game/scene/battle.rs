@@ -6,20 +6,11 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     scene::{
-        attacks::{attack_1, enter_attack_1, enter_shovel_attack, shovel_attack, spawn_shovels, AttacksPlugin},
+        attacks::{
+            attack_1, enter_attack_1, enter_shovel_attack, shovel_attack, spawn_shovels, AttacksPlugin
+        },
         internal::{
-            attack::Attack,
-            bullet_board::BulletBoard,
-            decisions::{remove_decisions, Decision, DecisionMenu, Decisions},
-            dodging::DodgingPhaseManager,
-            health::DamagePlugin,
-            helpers::despawn::{despawn_objects, DespawnPlugin},
-            menu::{MenuPlugin, MenuState},
-            menu_transition::MenuTransition,
-            opponent::{Opponent, OpponentPlugin},
-            progress::{Progress, ProgressPlugin},
-            selection::MenuOption,
-            text::TextBox,
+            attack::Attack, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, enemy_health::{manage_enemy_healthbar, EnemyHealthPlugin}, health::DamagePlugin, helpers::despawn::{despawn_objects, DespawnPlugin}, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
         },
     },
 };
@@ -34,6 +25,7 @@ impl Plugin for BattlePlugin {
             AttacksPlugin,
             DamagePlugin,
             DespawnPlugin,
+            EnemyHealthPlugin
         ));
     }
 }
@@ -51,13 +43,13 @@ impl FromWorld for BattleEvents {
         let mut attacks = vec![
             Attack {
                 enter_attack: Some(world.register_system(enter_attack_1)),
-                init_attack : None,
+                init_attack: None,
                 attack: Some(world.register_system(attack_1)),
                 exit_attack: None,
             },
             Attack {
                 enter_attack: Some(world.register_system(enter_shovel_attack)),
-                init_attack : Some(world.register_system(spawn_shovels)),
+                init_attack: Some(world.register_system(spawn_shovels)),
                 attack: Some(world.register_system(shovel_attack)),
                 exit_attack: None,
             },
@@ -80,9 +72,10 @@ impl FromWorld for Decisions {
         let mut item_menu = DecisionMenu::default();
         let mut mercy_menu = DecisionMenu::default();
 
-        fight_menu.left_column.push(Decision::new(
+        fight_menu.left_column.push(Decision::new_with_hover(
             "Biped Potato".to_string(),
             world.register_system(start_fight),
+            world.register_system(manage_enemy_healthbar)
         ));
 
         let mut act_sub_menu = DecisionMenu::default();

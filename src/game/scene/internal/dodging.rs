@@ -15,7 +15,10 @@ pub struct DodgingPlugin;
 impl Plugin for DodgingPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DodgingPhaseManager>()
-            .add_systems(OnEnter(MenuState::Dodging), init_attack.before(update_dodging_phase))
+            .add_systems(
+                OnEnter(MenuState::Dodging),
+                init_attack.before(update_dodging_phase),
+            )
             .add_systems(
                 FixedUpdate,
                 constrain_player
@@ -32,21 +35,17 @@ impl Plugin for DodgingPlugin {
 pub struct DodgingPhaseManager {
     pub time: f32,
     pub attack: Option<SystemId>,
-    pub init_attack : Option<SystemId>,
+    pub init_attack: Option<SystemId>,
 }
 impl DodgingPhaseManager {
     pub fn queue_attack() {}
 }
 
-fn init_attack(
-    mut commands: Commands,
-    mut dodging_manager: ResMut<DodgingPhaseManager>,
-) {
+fn init_attack(mut commands: Commands, mut dodging_manager: ResMut<DodgingPhaseManager>) {
     if dodging_manager.init_attack.is_some() {
         let init = dodging_manager.init_attack.unwrap();
         commands.run_system(init);
     }
-    
 }
 fn update_dodging_phase(
     mut commands: Commands,

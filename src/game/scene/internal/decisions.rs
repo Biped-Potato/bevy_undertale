@@ -21,12 +21,12 @@ pub struct DecisionPlugin;
 impl Plugin for DecisionPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Decisions>()
-            .add_systems(OnEnter(MenuState::Decision), init_decision_menu)
+            .add_systems(OnEnter(MenuState::Decision), init_decision_menu.before(update_decisions))
             .add_systems(
                 Update,
                 (
                     update_decisions,
-                    update_decision_spawning.after(update_decisions),
+                    update_decision_spawning.before(update_decisions),
                 )
                     .run_if(in_state(MenuState::Decision)),
             )
@@ -41,6 +41,9 @@ impl Plugin for DecisionPlugin {
 pub struct Decision {
     pub display: String,
     pub system: Option<SystemId>,
+
+    pub hover : Option<SystemId>,
+    
     pub submenu: Option<DecisionMenu>,
 }
 #[derive(Default, Clone)]
@@ -149,6 +152,15 @@ impl Decision {
             display: display,
             system: Some(system),
             submenu: None,
+            hover : None,
+        };
+    }
+    pub fn new_with_hover(display: String, system: SystemId,hover : SystemId) -> Decision {
+        return Decision {
+            display: display,
+            system: Some(system),
+            submenu: None,
+            hover : Some(hover),
         };
     }
     pub fn new_with_menu(display: String, submenu: Option<DecisionMenu>) -> Decision {
@@ -156,6 +168,7 @@ impl Decision {
             display: display,
             system: None,
             submenu: submenu,
+            hover : None,
         };
     }
 }
@@ -213,9 +226,12 @@ fn update_decisions(
     if decisions.decision_menu.is_some() {
         let mut vertical = 0;
         let mut horizontal = 0;
-
+        let decision = decisions.get_decision();
+        if decision.0.hover.is_some() {
+            commands.run_system(decision.0.hover.unwrap());
+        }
         if keys.just_pressed(KeyCode::KeyZ) {
-            let decision = decisions.get_decision();
+            
             if decision.0.submenu.is_some() {
                 decisions.enter_menu(decision.0.submenu.unwrap());
                 decisions.submenu = true;

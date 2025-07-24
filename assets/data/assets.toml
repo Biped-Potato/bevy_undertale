@@ -18,6 +18,7 @@ images = [
 ]
 atlases = [
     {name = "button", size_x = 110.0, size_y = 42.0, frame_count = 2},
+    {name = "timing", size_x = 14.0, size_y = 128.0, frame_count = 2},
 ]
 sounds = [
     #{name = "dialogue", path = "sound/dialogue.wav", volume = 5.0}
@@ -52,4 +53,20 @@ name = "button"
     start = 2
     end = 2
     cooldown = 0.1
+    looping = true
+
+
+[[animations]]
+name = "timing"
+    [[animations.group]]
+    name = "idle"
+    start = 1
+    end = 1
+    cooldown = 0.05
+    looping = true
+    [[animations.group]]
+    name = "flash"
+    start = 1
+    end = 2
+    cooldown = 0.05
     looping = true

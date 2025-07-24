@@ -6,7 +6,7 @@ use serde::Deserialize;
 pub struct AtlasAnimationPlugin;
 impl Plugin for AtlasAnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, animate_sprite);
+        app.add_systems(FixedUpdate, animate_sprite);
     }
 }
 #[derive(Deserialize, Clone, Default)]

@@ -13,3 +13,4 @@ pub mod scene;
 pub mod selection;
 pub mod stats;
 pub mod text;
+pub mod enemy_health;

@@ -7,8 +7,7 @@ use crate::game::{
     physics::physics_object::PhysicsComponent,
     player::player::Player,
     scene::internal::{
-        bullet_board::BulletBoard, helpers::despawn::DespawnInMenu, menu::MenuState,
-        menu_transition::MenuTransition, text::TextBox,
+        bullet_board::BulletBoard, helpers::despawn::DespawnInMenu, menu::MenuState, menu_transition::MenuTransition, stats::{HealthBar, HealthBarType}, text::TextBox
     },
     state::state::AppState,
 };
@@ -118,6 +117,7 @@ pub fn spawn_buttons(
     mut bullet_board: ResMut<BulletBoard>,
     mut commands: Commands,
     asset_manager: Res<AssetManager>,
+    data : Res<Data>,
 ) {
     let mut current_pos = -bullet_board.width / 2.0 - bullet_board.border + menu.button_width / 2.0;
     let mut sprites = vec![

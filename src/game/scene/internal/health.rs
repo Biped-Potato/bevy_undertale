@@ -11,9 +11,8 @@ use crate::game::physics::rectangle::Rectangle;
 pub struct DamagePlugin;
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_systems(FixedPostUpdate, update_damage)
-        .add_systems(FixedUpdate, (update_flash_animation));
+        app.add_systems(FixedPostUpdate, update_damage)
+            .add_systems(FixedUpdate, (update_flash_animation));
     }
 }
 

@@ -26,7 +26,7 @@ pub struct Attack1 {
 
 #[derive(Resource, Default)]
 pub struct ShovelAttack {
-    pub timer : f32,
+    pub timer: f32,
 }
 pub fn enter_attack_1(
     mut menu_transition: ResMut<MenuTransition>,
@@ -118,15 +118,18 @@ pub fn attack_1(
 
 #[derive(Component)]
 pub struct Shovel {
-    pub initial_pos : f32,
+    pub initial_pos: f32,
+    pub offset: Vec2,
+    pub time: f32,
+    pub timer: f32,
 }
 pub fn enter_shovel_attack(
-    mut commands : Commands,
+    mut commands: Commands,
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
     mut dodge_manager: ResMut<DodgingPhaseManager>,
     asset_manager: Res<AssetManager>,
-    mut shovel_atk : ResMut<ShovelAttack>,
+    mut shovel_atk: ResMut<ShovelAttack>,
 ) {
     bullet_board.transition_board(asset_manager.board_layouts["shovel_tunnel"].clone());
     dodge_manager.time = 10.0;
@@ -134,17 +137,17 @@ pub fn enter_shovel_attack(
 }
 
 pub fn spawn_shovels(
-    mut commands : Commands,
+    mut commands: Commands,
     mut menu_transition: ResMut<MenuTransition>,
     mut bullet_board: ResMut<BulletBoard>,
     mut dodge_manager: ResMut<DodgingPhaseManager>,
     asset_manager: Res<AssetManager>,
-    mut shovel_atk : ResMut<ShovelAttack>,
+    mut shovel_atk: ResMut<ShovelAttack>,
 ) {
     let shovel_count = (bullet_board.target_width / 10 as f32) as i32;
     let spacing = 10.0;
-    let mut half_size = Vec2::new(5.0,15.0);
-    let mut physics_half_size = Vec2::new(5.0,20.0);
+    let mut half_size = Vec2::new(5.0, 17.0);
+    let mut physics_half_size = Vec2::new(5.0, 20.0);
     let start = -bullet_board.target_width / 2.0 + half_size.x;
     let half_gap = 24.0;
     let top = bullet_board.target_position.y + physics_half_size.y + half_gap;
@@ -152,56 +155,71 @@ pub fn spawn_shovels(
 
     for i in 0..shovel_count {
         let pos = start + spacing * i as f32;
-        
-            commands.spawn((
-                Sprite {
-                    image: asset_manager.images["sprites/shovel.png"].clone(),
-                    flip_y : true,
-                    ..Default::default()
-                },
-                Transform::from_translation(Vec2::ZERO.extend(-1.0)),
-                PhysicsComponent::new_full(
-                    bullet_board.target_position + Vec2::new(pos, physics_half_size.y),
-                    Vec2::ZERO,
-                    half_size,
-                    physics_half_size,
-                ),
-                DespawnInMenu,
-                Damage { damage: 5 },
-                Shovel {initial_pos : top}
-            ));
 
-            commands.spawn((
-                Sprite {
-                    image: asset_manager.images["sprites/shovel.png"].clone(),
-                    flip_y : false,
-                    ..Default::default()
-                },
-                Transform::from_translation(Vec2::ZERO.extend(-1.0)),
-                PhysicsComponent::new_full(
-                    bullet_board.target_position + Vec2::new(pos, -physics_half_size.y),
-                    Vec2::ZERO,
-                    half_size,
-                    physics_half_size,
-                ),
-                DespawnInMenu,
-                Damage { damage: 5 },
-                Shovel { initial_pos : bottom}
-            ));
+        commands.spawn((
+            Sprite {
+                image: asset_manager.images["sprites/shovel.png"].clone(),
+                flip_y: true,
+                ..Default::default()
+            },
+            Transform::from_translation(Vec2::ZERO.extend(-1.0)),
+            PhysicsComponent::new_full(
+                bullet_board.target_position + Vec2::new(pos, physics_half_size.y),
+                Vec2::ZERO,
+                half_size,
+                physics_half_size,
+            ),
+            DespawnInMenu,
+            Damage { damage: 5 },
+            Shovel {
+                initial_pos: top,
+                offset: Vec2::new(0., physics_half_size.y * 2.0),
+                time: 2.0,
+                timer: 2.0,
+            },
+        ));
+
+        commands.spawn((
+            Sprite {
+                image: asset_manager.images["sprites/shovel.png"].clone(),
+                flip_y: false,
+                ..Default::default()
+            },
+            Transform::from_translation(Vec2::ZERO.extend(-1.0)),
+            PhysicsComponent::new_full(
+                bullet_board.target_position + Vec2::new(pos, -physics_half_size.y),
+                Vec2::ZERO,
+                half_size,
+                physics_half_size,
+            ),
+            DespawnInMenu,
+            Damage { damage: 5 },
+            Shovel {
+                initial_pos: bottom,
+                offset: Vec2::new(0., -physics_half_size.y * 2.0),
+                time: 2.0,
+                timer: 2.0,
+            },
+        ));
     }
 }
 pub fn shovel_attack(
     mut commands: Commands,
     mut time: Res<Time<Fixed>>,
     mut attack: ResMut<ShovelAttack>,
-    mut shovel_query : Query<(&mut PhysicsComponent, &mut Shovel)>,
+    mut shovel_query: Query<(&mut PhysicsComponent, &mut Shovel)>,
     bullet_board: Res<BulletBoard>,
     asset_manager: Res<AssetManager>,
 ) {
     attack.timer += time.delta_secs();
-    for(mut p,mut s) in shovel_query.iter_mut() {
+    for (mut p, mut s) in shovel_query.iter_mut() {
+        s.timer -= time.delta_secs();
+        if s.timer <= 0. {
+            s.timer = 0.;
+        }
         let t = p.position.x / bullet_board.width;
-        p.position.y = s.initial_pos + f32::sin(t * 2. * 3.14159 + attack.timer * 5.0) * 24.0;
+        p.position.y = s.initial_pos
+            + f32::sin(t * 2. * 3.14159 + attack.timer * 5.0) * 24.0
+            + s.offset.y * (s.timer / s.time);
     }
-
 }

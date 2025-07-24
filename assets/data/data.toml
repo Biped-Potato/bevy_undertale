@@ -12,6 +12,7 @@ name = "FRISK"
 iframes = 1.0
 damage = 1
 attack_speed = 11.0
+start_turn = 1
 
 [fight_bar]
 fade_time = 1.0
@@ -20,6 +21,8 @@ attack_animation = 2.0
 [opponent_data]
 height = 76.0
 width = 100.0
+health = 100
+
 
 [[dialogue.dialogues]]
 name = "battle_start"

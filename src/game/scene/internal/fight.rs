@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::{
+    animation::animation::Animator,
     data::data::Data,
     loading::loading::AssetManager,
     player::player::Player,
@@ -120,6 +121,16 @@ fn spawn_fight_bar(
     commands.spawn((
         Sprite {
             image: asset_manager.images["sprites/timing.png"].clone(),
+            texture_atlas: Some(TextureAtlas {
+                layout: asset_manager.atlases["timing"].clone(),
+                index: 0,
+                ..default()
+            }),
+            ..Default::default()
+        },
+        Animator {
+            current_animation: "idle".to_string(),
+            animation_bank: asset_manager.animations["timing"].clone(),
             ..Default::default()
         },
         Transform::from_translation(bullet_board.position.extend(1.0)),
@@ -146,19 +157,23 @@ fn init_fight(
     }
 }
 fn update_fight_bar(
-    mut timing_query: Query<(&mut TimingBar, &mut Transform)>,
+    mut timing_query: Query<(&mut TimingBar, &mut Animator, &mut Transform)>,
     mut fight: ResMut<FightManager>,
     bullet_board: Res<BulletBoard>,
     data: Res<Data>,
 ) {
-    if let Ok((mut bar, mut t)) = timing_query.single_mut() {
+    if let Ok((mut bar, mut a, mut t)) = timing_query.single_mut() {
         if !fight.strike {
             fight.position += data.game.player.attack_speed;
+            a.current_animation = "idle".to_string();
+        } else {
+            a.current_animation = "flash".to_string();
         }
         t.translation.x = fight.position.floor();
 
         if fight.position >= bullet_board.width / 2.0 + bullet_board.border {
             fight.strike = true;
+
             fight.attack_animation = 0.;
         }
     }
