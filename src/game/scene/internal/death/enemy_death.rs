@@ -81,12 +81,11 @@ fn kill_enemy_visual(
         *v = Visibility::Hidden;
         d_a.rows.clear();
         d_a.death_time = data.game.opponent_data.death_time;
+        d_a.i = 0;
         if let Some(mut image) = images.get_mut(&s.image) {
             let width = image.width();
             let height = image.height();
 
-            
-            
             for y in (0..height).rev() {
                 let mut row = Vec::new();
                 for x in 0..width {

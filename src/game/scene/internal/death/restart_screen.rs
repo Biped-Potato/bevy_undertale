@@ -1,12 +1,9 @@
-use bevy::prelude::*;
+use bevy::{math::VectorSpace, prelude::*};
 
 use crate::game::{
-    data::data::Data,
-    loading::loading::AssetManager,
-    player::player::PlayerStats,
-    scene::internal::{
-        bullet_board::BulletBoard, dodging::DodgingPhaseManager, helpers::{despawn::DespawnInMenu, menu_item::MenuItem}, menu::MenuState, menu_transition::MenuTransition, progress::Progress
-    },
+    data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::{Player, PlayerStats}, scene::internal::{
+        bullet_board::{move_towards_vec, BulletBoard}, dodging::DodgingPhaseManager, helpers::{despawn::DespawnInMenu, menu_item::MenuItem}, menu::MenuState, menu_transition::MenuTransition, progress::Progress
+    }
 };
 
 pub struct RestartPlugin;
@@ -66,14 +63,22 @@ fn init_restart_screen(mut commands: Commands, asset_manager: Res<AssetManager>)
             Text2d::new("Press Z to Restart"),
             TextLayout::new(JustifyText::Center, LineBreak::NoWrap),
             text_font,
-            Transform::from_translation((Vec2::ZERO).extend(3.0) + Vec3::new(0.5,0.0,0.0)),
+            Transform::from_translation((Vec2::ZERO).extend(3.0) + Vec3::new(0.5,26.0,0.0)),
             Name::new("RestartText"),
             RestartText,
         ))
         .id();
 }
 
-fn hover_soul() {}
+fn hover_soul(
+    mut player_query : Query<(&mut PhysicsComponent, &mut Player)>,
+    time : Res<Time>,
+) {
+    for(mut physics, mut player) in player_query.iter_mut() {
+        let initial = physics.position;
+        physics.position += move_towards_vec(initial,Vec2::ZERO,5.0);
+    }
+}
 fn hide_menu(
     mut commands: Commands,
     mut despawn_query: Query<(Entity), With<DespawnInMenu>>,
