@@ -9,6 +9,7 @@ use crate::game::{
     player::player::Player,
     scene::internal::{
         bullet_board::{self, BulletBoard},
+        helpers::menu_item::MenuItem,
         menu::MenuState,
         menu_transition::MenuTransition,
         progress::Progress,
@@ -21,7 +22,10 @@ pub struct DecisionPlugin;
 impl Plugin for DecisionPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Decisions>()
-            .add_systems(OnEnter(MenuState::Decision), init_decision_menu.before(update_decisions))
+            .add_systems(
+                OnEnter(MenuState::Decision),
+                init_decision_menu.before(update_decisions),
+            )
             .add_systems(
                 Update,
                 (
@@ -42,8 +46,8 @@ pub struct Decision {
     pub display: String,
     pub system: Option<SystemId>,
 
-    pub hover : Option<SystemId>,
-    
+    pub hover: Option<SystemId>,
+
     pub submenu: Option<DecisionMenu>,
 }
 #[derive(Default, Clone)]
@@ -107,6 +111,7 @@ impl Decisions {
                 text_font.clone(),
                 Transform::from_translation((position).extend(1.0)),
                 DecisionMarker {},
+                MenuItem,
             ))
             .id();
         commands.entity(parent).add_child(e);
@@ -152,15 +157,15 @@ impl Decision {
             display: display,
             system: Some(system),
             submenu: None,
-            hover : None,
+            hover: None,
         };
     }
-    pub fn new_with_hover(display: String, system: SystemId,hover : SystemId) -> Decision {
+    pub fn new_with_hover(display: String, system: SystemId, hover: SystemId) -> Decision {
         return Decision {
             display: display,
             system: Some(system),
             submenu: None,
-            hover : Some(hover),
+            hover: Some(hover),
         };
     }
     pub fn new_with_menu(display: String, submenu: Option<DecisionMenu>) -> Decision {
@@ -168,7 +173,7 @@ impl Decision {
             display: display,
             system: None,
             submenu: submenu,
-            hover : None,
+            hover: None,
         };
     }
 }
@@ -231,7 +236,6 @@ fn update_decisions(
             commands.run_system(decision.0.hover.unwrap());
         }
         if keys.just_pressed(KeyCode::KeyZ) {
-            
             if decision.0.submenu.is_some() {
                 decisions.enter_menu(decision.0.submenu.unwrap());
                 decisions.submenu = true;

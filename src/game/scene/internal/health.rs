@@ -4,6 +4,7 @@ use crate::game::{
     data::data::Data,
     physics::physics_object::PhysicsComponent,
     player::player::{Player, PlayerStats},
+    scene::internal::{menu::MenuState, menu_transition::MenuTransition},
 };
 
 use crate::game::physics::rectangle::Rectangle;
@@ -25,6 +26,7 @@ fn update_damage(
     mut player_query: Query<(&mut PhysicsComponent, &mut Player)>,
     mut damage_query: Query<(&mut PhysicsComponent, &mut Damage), Without<Player>>,
     mut player_stats: ResMut<PlayerStats>,
+    mut menu_transition: ResMut<MenuTransition>,
     data: Res<Data>,
 ) {
     if let Ok((mut physics, mut player)) = player_query.single_mut() {
@@ -35,8 +37,9 @@ fn update_damage(
                 if rect_1.intersects(rect_2) {
                     player_stats.invincibility = data.game.player.iframes;
                     player_stats.health -= damage.damage;
-                    if player_stats.health < 0 {
+                    if player_stats.health <= 0 {
                         player_stats.health = 0;
+                        menu_transition.new_state(MenuState::Restart);
                     }
                     break;
                 }

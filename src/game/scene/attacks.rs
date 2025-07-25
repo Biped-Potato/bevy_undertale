@@ -4,8 +4,11 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     scene::internal::{
-        bullet_board::BulletBoard, dodging::DodgingPhaseManager, health::Damage,
-        helpers::despawn::DespawnInMenu, menu_transition::MenuTransition,
+        bullet_board::BulletBoard,
+        dodging::DodgingPhaseManager,
+        health::Damage,
+        helpers::{despawn::DespawnInMenu, menu_item::MenuItem},
+        menu_transition::MenuTransition,
     },
 };
 

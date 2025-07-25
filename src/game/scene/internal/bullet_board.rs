@@ -6,7 +6,7 @@ use crate::game::{
     loading::loading::AssetManager,
     physics::physics_object::PhysicsComponent,
     player::player::{Player, player_movement},
-    scene::internal::menu::MenuState,
+    scene::internal::{helpers::menu_item::MenuItem, menu::MenuState},
     state::state::AppState,
 };
 
@@ -158,17 +158,13 @@ impl BulletBoard {
     fn spawn_border(
         &mut self,
         commands: &mut Commands,
-        asset_manager: &Res<AssetManager>,
         render_layers: &Res<RenderLayerStorage>,
         border: BulletBoardBorder,
     ) {
         let mut scale = self.get_border_scale(&border);
         let mut position = self.get_border_position(&border);
         commands.spawn((
-            Sprite {
-                image: asset_manager.images["sprites/pixel.png"].clone(),
-                ..Default::default()
-            },
+            Sprite::from_color(Color::WHITE, Vec2::ONE),
             Transform {
                 translation: Vec3::new(position.x, position.y, 0.0),
                 scale: Vec3::new(scale.x, scale.y, 1.),
@@ -176,6 +172,7 @@ impl BulletBoard {
             },
             border,
             render_layers.pre.clone(),
+            MenuItem,
         ));
     }
     fn spawn_side_fill(
@@ -196,6 +193,7 @@ impl BulletBoard {
             side_fill,
             Name::new("Side"),
             render_layers.pre.clone(),
+            MenuItem,
         ));
     }
 
@@ -211,6 +209,7 @@ impl BulletBoard {
                 },
                 BulletBoardFill,
                 render_layers.pre.clone(),
+                MenuItem,
             ))
             .id();
 
@@ -241,30 +240,10 @@ pub fn spawn_bullet_board(
     asset_manager: Res<AssetManager>,
     render_layers: Res<RenderLayerStorage>,
 ) {
-    bullet_board.spawn_border(
-        &mut commands,
-        &asset_manager,
-        &render_layers,
-        BulletBoardBorder::Right,
-    );
-    bullet_board.spawn_border(
-        &mut commands,
-        &asset_manager,
-        &render_layers,
-        BulletBoardBorder::Left,
-    );
-    bullet_board.spawn_border(
-        &mut commands,
-        &asset_manager,
-        &render_layers,
-        BulletBoardBorder::Top,
-    );
-    bullet_board.spawn_border(
-        &mut commands,
-        &asset_manager,
-        &render_layers,
-        BulletBoardBorder::Bottom,
-    );
+    bullet_board.spawn_border(&mut commands, &render_layers, BulletBoardBorder::Right);
+    bullet_board.spawn_border(&mut commands, &render_layers, BulletBoardBorder::Left);
+    bullet_board.spawn_border(&mut commands, &render_layers, BulletBoardBorder::Top);
+    bullet_board.spawn_border(&mut commands, &render_layers, BulletBoardBorder::Bottom);
 
     bullet_board.spawn_side_fill(&mut commands, &render_layers, SideFill::Bottom);
     bullet_board.spawn_side_fill(&mut commands, &render_layers, SideFill::Top);

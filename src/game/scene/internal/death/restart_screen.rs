@@ -1,0 +1,101 @@
+use bevy::prelude::*;
+
+use crate::game::{
+    data::data::Data,
+    loading::loading::AssetManager,
+    player::player::PlayerStats,
+    scene::internal::{
+        helpers::{despawn::DespawnInMenu, menu_item::MenuItem},
+        menu::MenuState,
+        menu_transition::MenuTransition,
+        progress::Progress,
+    },
+};
+
+pub struct RestartPlugin;
+impl Plugin for RestartPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            OnEnter(MenuState::Restart),
+            (init_restart_screen, hide_menu),
+        )
+        .add_systems(
+            OnExit(MenuState::Restart),
+            (despawn_restart_screen, show_menu),
+        )
+        .add_systems(
+            Update,
+            (update_restart).run_if(in_state(MenuState::Restart)),
+        )
+        .add_systems(
+            FixedUpdate,
+            (hover_soul).run_if(in_state(MenuState::Restart)),
+        );
+    }
+}
+
+fn update_restart(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut menu_transition: ResMut<MenuTransition>,
+    mut progress: ResMut<Progress>,
+    mut player_stats: ResMut<PlayerStats>,
+    data: Res<Data>,
+) {
+    if keys.just_pressed(KeyCode::KeyZ) {
+        menu_transition.new_state(MenuState::Selection);
+        progress.turns = 0;
+        progress.health = data.game.opponent_data.health;
+        player_stats.health = player_stats.max_health;
+    }
+}
+
+#[derive(Component)]
+pub struct RestartText;
+fn init_restart_screen(mut commands: Commands, asset_manager: Res<AssetManager>) {
+    let text_font = TextFont {
+        font: asset_manager.fonts["fonts/DTM-Mono.ttf"].clone(),
+        font_size: 26.0,
+        font_smoothing: bevy::text::FontSmoothing::None,
+        ..Default::default()
+    };
+
+    let e = commands
+        .spawn((
+            Text2d::new("Press Z to Restart"),
+            TextLayout::new(JustifyText::Center, LineBreak::NoWrap),
+            text_font,
+            Transform::from_translation((Vec2::ZERO).extend(3.0)),
+            Name::new("RestartText"),
+            RestartText,
+        ))
+        .id();
+}
+
+fn hover_soul() {}
+fn hide_menu(
+    mut commands: Commands,
+    mut despawn_query: Query<(Entity), With<DespawnInMenu>>,
+    mut menu_query: Query<(&mut Visibility), With<MenuItem>>,
+) {
+    for (mut v) in menu_query.iter_mut() {
+        *v = Visibility::Hidden;
+    }
+    for (e) in despawn_query.iter_mut() {
+        commands.entity(e).despawn();
+    }
+}
+
+fn despawn_restart_screen(
+    mut commands: Commands,
+    despawn_query: Query<(Entity), With<RestartText>>,
+) {
+    for (e) in despawn_query.iter() {
+        commands.entity(e).despawn();
+    }
+}
+
+fn show_menu(mut menu_query: Query<(&mut Visibility), With<MenuItem>>) {
+    for (mut v) in menu_query.iter_mut() {
+        *v = Visibility::Visible;
+    }
+}

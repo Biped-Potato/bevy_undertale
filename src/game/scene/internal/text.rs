@@ -7,6 +7,7 @@ use crate::game::{
     player::player::Player,
     scene::internal::{
         bullet_board::{BulletBoard, BulletBoardFill, spawn_bullet_board},
+        helpers::menu_item::MenuItem,
         menu::MenuState,
         menu_transition::MenuTransition,
         progress::Progress,
@@ -172,6 +173,7 @@ fn spawn_text(
                     text_font,
                     Transform::from_translation((pos).extend(1.0)),
                     TextBoxText,
+                    MenuItem,
                 ))
                 .id();
             text_box.entity = Some(e);

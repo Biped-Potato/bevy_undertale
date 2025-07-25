@@ -7,10 +7,27 @@ use crate::game::{
     physics::physics_object::PhysicsComponent,
     scene::{
         attacks::{
-            attack_1, enter_attack_1, enter_shovel_attack, shovel_attack, spawn_shovels, AttacksPlugin
+            AttacksPlugin, attack_1, enter_attack_1, enter_shovel_attack, shovel_attack,
+            spawn_shovels,
         },
         internal::{
-            attack::Attack, bullet_board::BulletBoard, decisions::{remove_decisions, Decision, DecisionMenu, Decisions}, dodging::DodgingPhaseManager, enemy_health::{manage_enemy_healthbar, EnemyHealthPlugin}, health::DamagePlugin, helpers::despawn::{despawn_objects, DespawnPlugin}, menu::{MenuPlugin, MenuState}, menu_transition::MenuTransition, opponent::{Opponent, OpponentPlugin}, progress::{Progress, ProgressPlugin}, selection::MenuOption, text::TextBox
+            attack::Attack,
+            bullet_board::BulletBoard,
+            death::restart_screen::RestartPlugin,
+            decisions::{Decision, DecisionMenu, Decisions, remove_decisions},
+            dodging::DodgingPhaseManager,
+            enemy_health::{EnemyHealthPlugin, manage_enemy_healthbar},
+            health::DamagePlugin,
+            helpers::{
+                despawn::{DespawnPlugin, despawn_objects},
+                menu_item::MenuItem,
+            },
+            menu::{MenuPlugin, MenuState},
+            menu_transition::MenuTransition,
+            opponent::{Opponent, OpponentPlugin},
+            progress::{Progress, ProgressPlugin},
+            selection::MenuOption,
+            text::TextBox,
         },
     },
 };
@@ -18,15 +35,8 @@ use crate::game::{
 pub struct BattlePlugin;
 impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<BattleEvents>().add_plugins((
-            MenuPlugin,
-            OpponentPlugin,
-            ProgressPlugin,
-            AttacksPlugin,
-            DamagePlugin,
-            DespawnPlugin,
-            EnemyHealthPlugin
-        ));
+        app.init_resource::<BattleEvents>()
+            .add_plugins((MenuPlugin,));
     }
 }
 
@@ -75,7 +85,7 @@ impl FromWorld for Decisions {
         fight_menu.left_column.push(Decision::new_with_hover(
             "Biped Potato".to_string(),
             world.register_system(start_fight),
-            world.register_system(manage_enemy_healthbar)
+            world.register_system(manage_enemy_healthbar),
         ));
 
         let mut act_sub_menu = DecisionMenu::default();
@@ -161,9 +171,8 @@ pub fn spawn_opponent(asset_manager: Res<AssetManager>, mut commands: Commands) 
             ..Default::default()
         },
         PhysicsComponent::new(Vec2::ZERO),
-        Opponent {
-            offset : Vec2::ZERO,
-        },
+        Opponent { offset: Vec2::ZERO },
+        MenuItem,
     ));
 }
 fn enter_planned_attack(
@@ -182,7 +191,7 @@ fn enter_planned_attack(
     attack.enter(&mut commands);
     dodging_manager.attack = attack.attack;
     dodging_manager.init_attack = attack.init_attack;
-    progress.turns += 1;
+    progress.turns = (progress.turns + 1) % battle_events.attacks.len() as i32;
 }
 
 fn item() {}

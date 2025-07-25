@@ -4,7 +4,10 @@ use bevy::asset::UntypedHandle;
 use bevy::prelude::*;
 
 use crate::game::{
-    animation::animation::Animation, data::data::{setup_data, BoardLayout, Data, DialogueSet}, scene::internal::progress::Progress, state::state::AppState
+    animation::animation::Animation,
+    data::data::{BoardLayout, Data, DialogueSet, setup_data},
+    scene::internal::progress::Progress,
+    state::state::AppState,
 };
 
 pub struct AssetManagerPlugin;
@@ -56,11 +59,10 @@ fn load_assets(
     mut asset_manager: ResMut<AssetManager>,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    mut progress : ResMut<Progress>,
+    mut progress: ResMut<Progress>,
 ) {
     progress.turns = data.game.player.start_turn;
     progress.health = data.game.opponent_data.health;
-
 
     let images = &data.assets.images;
     let atlases = &data.assets.atlases;

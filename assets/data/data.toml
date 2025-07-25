@@ -11,8 +11,9 @@ health = 20
 name = "FRISK"
 iframes = 1.0
 attack_speed = 11.0
-start_turn = 1
-at = 0
+
+start_turn = 0
+at = 100
 df = 0
 
 [fight_bar]
@@ -25,6 +26,7 @@ width = 100.0
 health = 100
 at = 5
 df = 0
+death_time = 4.0
 
 [[dialogue.dialogues]]
 name = "battle_start"

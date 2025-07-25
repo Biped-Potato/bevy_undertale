@@ -1,7 +1,9 @@
 pub mod attack;
 pub mod bullet_board;
+pub mod death;
 pub mod decisions;
 pub mod dodging;
+pub mod enemy_health;
 pub mod fight;
 pub mod health;
 pub mod helpers;
@@ -13,4 +15,3 @@ pub mod scene;
 pub mod selection;
 pub mod stats;
 pub mod text;
-pub mod enemy_health;

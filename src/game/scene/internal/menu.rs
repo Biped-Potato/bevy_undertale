@@ -1,28 +1,47 @@
 use bevy::prelude::*;
 
-use crate::game::scene::internal::{
-    bullet_board::BulletBoardPlugin,
-    decisions::DecisionPlugin,
-    dodging::DodgingPlugin,
-    fight::FightPlugin,
-    menu_transition::MenuTransitionPlugin,
-    selection::{MenuOption, MenuSelectPlugin},
-    stats::StatsPlugin,
-    text::TextBoxPlugin,
+use crate::game::scene::{
+    attacks::AttacksPlugin,
+    internal::{
+        bullet_board::BulletBoardPlugin,
+        death::{enemy_death::EnemyDeathPlugin, restart_screen::RestartPlugin},
+        decisions::DecisionPlugin,
+        dodging::DodgingPlugin,
+        enemy_health::EnemyHealthPlugin,
+        fight::FightPlugin,
+        health::DamagePlugin,
+        helpers::despawn::DespawnPlugin,
+        menu_transition::MenuTransitionPlugin,
+        opponent::OpponentPlugin,
+        progress::ProgressPlugin,
+        selection::{MenuOption, MenuSelectPlugin},
+        stats::StatsPlugin,
+        text::TextBoxPlugin,
+    },
 };
 
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<MenuState>()
-            .add_plugins(MenuSelectPlugin)
-            .add_plugins(BulletBoardPlugin)
-            .add_plugins(StatsPlugin)
-            .add_plugins(DecisionPlugin)
-            .add_plugins(TextBoxPlugin)
-            .add_plugins(DodgingPlugin)
-            .add_plugins(MenuTransitionPlugin)
-            .add_plugins(FightPlugin);
+            .add_plugins((
+                MenuSelectPlugin,
+                BulletBoardPlugin,
+                StatsPlugin,
+                DecisionPlugin,
+                TextBoxPlugin,
+                DodgingPlugin,
+                MenuTransitionPlugin,
+                FightPlugin,
+                OpponentPlugin,
+                ProgressPlugin,
+                AttacksPlugin,
+                DamagePlugin,
+                DespawnPlugin,
+                EnemyHealthPlugin,
+                RestartPlugin,
+            ))
+            .add_plugins((EnemyDeathPlugin));
     }
 }
 
@@ -35,6 +54,9 @@ pub enum MenuState {
     Text,
     Fight,
     Dodging,
+
+    EnemyDeath,
+    Restart,
 
     ERROR,
 }

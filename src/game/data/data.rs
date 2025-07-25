@@ -26,10 +26,12 @@ pub struct GameData {
 pub struct OpponentData {
     pub height: f32,
     pub width: f32,
-    pub health : i32,
+    pub health: i32,
 
-    pub at : i32,
-    pub df : i32,
+    pub at: i32,
+    pub df: i32,
+
+    pub death_time: f32,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct FightBarData {
@@ -78,10 +80,10 @@ pub struct PlayerData {
     pub health: i32,
     pub iframes: f32,
     pub attack_speed: f32,
-    pub start_turn : i32,
+    pub start_turn: i32,
 
-    pub at : i32,
-    pub df : i32,
+    pub at: i32,
+    pub df: i32,
 }
 
 #[derive(Deserialize, Clone)]
