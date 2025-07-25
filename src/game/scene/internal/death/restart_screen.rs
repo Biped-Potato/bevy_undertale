@@ -5,10 +5,7 @@ use crate::game::{
     loading::loading::AssetManager,
     player::player::PlayerStats,
     scene::internal::{
-        helpers::{despawn::DespawnInMenu, menu_item::MenuItem},
-        menu::MenuState,
-        menu_transition::MenuTransition,
-        progress::Progress,
+        bullet_board::BulletBoard, dodging::DodgingPhaseManager, helpers::{despawn::DespawnInMenu, menu_item::MenuItem}, menu::MenuState, menu_transition::MenuTransition, progress::Progress
     },
 };
 
@@ -39,13 +36,18 @@ fn update_restart(
     mut menu_transition: ResMut<MenuTransition>,
     mut progress: ResMut<Progress>,
     mut player_stats: ResMut<PlayerStats>,
+    mut bullet_board : ResMut<BulletBoard>,
+    asset_manager : Res<AssetManager>,
+    mut dodging_manager: ResMut<DodgingPhaseManager>,
     data: Res<Data>,
 ) {
     if keys.just_pressed(KeyCode::KeyZ) {
+        bullet_board.absolute_board(asset_manager.board_layouts["selection"].clone());
         menu_transition.new_state(MenuState::Selection);
         progress.turns = 0;
         progress.health = data.game.opponent_data.health;
         player_stats.health = player_stats.max_health;
+        dodging_manager.time = 0.;
     }
 }
 
@@ -64,7 +66,7 @@ fn init_restart_screen(mut commands: Commands, asset_manager: Res<AssetManager>)
             Text2d::new("Press Z to Restart"),
             TextLayout::new(JustifyText::Center, LineBreak::NoWrap),
             text_font,
-            Transform::from_translation((Vec2::ZERO).extend(3.0)),
+            Transform::from_translation((Vec2::ZERO).extend(3.0) + Vec3::new(0.5,0.0,0.0)),
             Name::new("RestartText"),
             RestartText,
         ))

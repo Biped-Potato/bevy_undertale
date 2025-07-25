@@ -66,7 +66,7 @@ fn update_opponent_position(
             + bullet_board.height / 2.0
             + bullet_board.border
             + 10.0
-            + data.game.opponent_data.height / 2.0;
+            + data.game.opponent_data.height * 2.0 / 2.0;
         if fight_manager.strike && !fight_manager.miss {
             if fight_manager.attack_animation <= 1.0 {
                 let time = 1.0 - fight_manager.attack_animation;
@@ -127,7 +127,7 @@ fn update_enemy_healthbar(
                 if fight_manager.attack_animation <= 1.0 || fight_manager.miss {
                     h.max_health = data.game.opponent_data.health;
                     h.position = physics.position - o.offset
-                        + Vec2::new(0., data.game.opponent_data.height / 2.0)
+                        + Vec2::new(0., data.game.opponent_data.height * 2.0 / 2.0)
                         + Vec2::new(0., h.custom_size.unwrap().y as f32 / 2.0);
                     let diff = bar_manager.old_health - bar_manager.new_health;
                     h.health = (bar_manager.new_health as f32

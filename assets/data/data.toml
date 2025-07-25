@@ -13,7 +13,7 @@ iframes = 1.0
 attack_speed = 11.0
 
 start_turn = 0
-at = 100
+at = 10000
 df = 0
 
 [fight_bar]
@@ -21,8 +21,8 @@ fade_time = 1.0
 attack_animation = 2.0
 
 [opponent_data]
-height = 76.0
-width = 100.0
+height = 38.0
+width = 50.0
 health = 100
 at = 5
 df = 0

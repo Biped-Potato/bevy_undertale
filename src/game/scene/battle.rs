@@ -167,9 +167,10 @@ fn talk(
 pub fn spawn_opponent(asset_manager: Res<AssetManager>, mut commands: Commands) {
     commands.spawn((
         Sprite {
-            image: asset_manager.images["sprites/bipedpotato.png"].clone(),
+            image: asset_manager.images["sprites/bipedpotato2x.png"].clone(),
             ..Default::default()
         },
+        Transform::from_scale(Vec3::splat(2.0)),
         PhysicsComponent::new(Vec2::ZERO),
         Opponent { offset: Vec2::ZERO },
         MenuItem,

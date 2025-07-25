@@ -227,7 +227,7 @@ fn update_slash_position(
         if let Ok((mut physics, mut opponent)) = opponent_query.single_mut() {
             transform.translation.x = (physics.position.x).round();
             transform.translation.y =
-                (physics.position.y - data.game.opponent_data.height / 2.0 + 94.0 / 2.0).round();
+                (physics.position.y - data.game.opponent_data.height * 2.0 / 2.0 + 94.0 / 2.0).round();
         }
         animator.current_animation = "idle".to_string();
         if fight.strike && !fight.miss {
@@ -263,17 +263,18 @@ fn update_fight_bar(
     if let Ok((mut bar, mut a, mut t)) = timing_query.single_mut() {
         if !fight.strike {
             fight.position += data.game.player.attack_speed;
+            if fight.position >= bullet_board.width / 2.0 + bullet_board.border {
+                fight.trigger_damage();
+                //fight.attack_animation = 0.;
+                fight.miss = true;
+                log::info!("miss");
+            }
             a.current_animation = "idle".to_string();
         } else {
             a.current_animation = "flash".to_string();
         }
         t.translation.x = fight.position.floor();
-
-        if fight.position >= bullet_board.width / 2.0 + bullet_board.border {
-            fight.trigger_damage();
-            //fight.attack_animation = 0.;
-            fight.miss = true;
-        }
+    
     }
 }
 

@@ -154,6 +154,7 @@ pub fn spawn_stats(
             center: false,
         },
         PlayerHealthBar {},
+        MenuItem
     ));
 }
 
