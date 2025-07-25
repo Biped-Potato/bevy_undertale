@@ -27,6 +27,8 @@ health = 100
 at = 5
 df = 0
 death_time = 4.0
+dust_time = 0.02
+dust_life = 0.5
 
 [[dialogue.dialogues]]
 name = "battle_start"

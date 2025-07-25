@@ -32,6 +32,8 @@ pub struct OpponentData {
     pub df: i32,
 
     pub death_time: f32,
+    pub dust_time : f32,
+    pub dust_life : f32,
 }
 #[derive(Deserialize, Clone, Default)]
 pub struct FightBarData {
