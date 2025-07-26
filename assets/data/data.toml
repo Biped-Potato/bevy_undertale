@@ -13,7 +13,7 @@ iframes = 1.0
 attack_speed = 11.0
 
 start_turn = 0
-at = 10000
+at = 0
 df = 0
 
 [fight_bar]

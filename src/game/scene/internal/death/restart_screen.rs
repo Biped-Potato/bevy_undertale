@@ -36,15 +36,18 @@ fn update_restart(
     mut bullet_board : ResMut<BulletBoard>,
     asset_manager : Res<AssetManager>,
     mut dodging_manager: ResMut<DodgingPhaseManager>,
+    mut player_query : Query<(&mut PhysicsComponent, &mut Player)>,
     data: Res<Data>,
 ) {
-    if keys.just_pressed(KeyCode::KeyZ) {
-        bullet_board.absolute_board(asset_manager.board_layouts["selection"].clone());
-        menu_transition.new_state(MenuState::Selection);
-        progress.turns = 0;
-        progress.health = data.game.opponent_data.health;
-        player_stats.health = player_stats.max_health;
-        dodging_manager.time = 0.;
+    if let Ok((mut physics,mut p)) = player_query.single_mut() {
+        if Vec2::length(physics.position) <= 2.0 && keys.just_pressed(KeyCode::KeyZ) {
+            bullet_board.absolute_board(asset_manager.board_layouts["selection"].clone());
+            menu_transition.new_state(MenuState::Selection);
+            progress.turns = 0;
+            progress.health = data.game.opponent_data.health;
+            player_stats.health = player_stats.max_health;
+            dodging_manager.time = 0.;
+        }
     }
 }
 
