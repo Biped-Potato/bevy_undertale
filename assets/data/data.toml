@@ -23,7 +23,7 @@ attack_animation = 2.0
 [opponent_data]
 height = 38.0
 width = 50.0
-health = 100
+health = 60
 at = 5
 df = 0
 death_time = 4.0

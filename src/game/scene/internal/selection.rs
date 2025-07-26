@@ -1,20 +1,9 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    animation::animation::Animator,
-    data::data::Data,
-    loading::loading::AssetManager,
-    physics::physics_object::PhysicsComponent,
-    player::player::Player,
-    scene::internal::{
-        bullet_board::BulletBoard,
-        helpers::{despawn::DespawnInMenu, menu_item::MenuItem},
-        menu::MenuState,
-        menu_transition::MenuTransition,
-        stats::{HealthBar, HealthBarType},
-        text::TextBox,
-    },
-    state::state::AppState,
+    animation::animation::Animator, data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::internal::{
+        bullet_board::BulletBoard, decisions::update_decisions, helpers::{despawn::DespawnInMenu, menu_item::MenuItem}, menu::MenuState, menu_transition::MenuTransition, stats::{HealthBar, HealthBarType}, text::TextBox
+    }, sound::sound::SoundPlayer, state::state::AppState
 };
 
 #[derive(Resource)]
@@ -65,7 +54,7 @@ impl Plugin for MenuSelectPlugin {
         .add_systems(PreStartup, init_bullet_board_size)
         .add_systems(
             Update,
-            (update_selection, update_buttons).run_if(in_state(MenuState::Selection)),
+            (update_selection, update_buttons).after(update_decisions).run_if(in_state(MenuState::Selection)),
         );
     }
 }
@@ -82,15 +71,20 @@ fn update_selection(
     input: Res<ButtonInput<KeyCode>>,
     mut menu_transition: ResMut<MenuTransition>,
     mut text_box: ResMut<TextBox>,
+    mut sounds : ResMut<SoundPlayer>,
+    asset_manager : Res<AssetManager>,
 ) {
     if input.just_pressed(KeyCode::ArrowLeft) {
         menu.cycle(-1);
+        sounds.play_sound_once_local(asset_manager.sounds["move_menu"].clone());
     }
     if input.just_pressed(KeyCode::ArrowRight) {
         menu.cycle(1);
+        sounds.play_sound_once_local(asset_manager.sounds["move_menu"].clone());
     }
     if input.just_pressed(KeyCode::KeyZ) {
         menu_transition.new_state(MenuState::Decision);
+        sounds.play_sound_once_local(asset_manager.sounds["select"].clone());
         text_box.clear_box();
     }
 }

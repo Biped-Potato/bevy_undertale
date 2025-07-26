@@ -1,7 +1,7 @@
 use crate::game::{
     animation::animation::AtlasAnimationPlugin, camera::render_layers::RenderLayersPlugin,
     data::data::DataPlugin, loading::loading::AssetManagerPlugin, physics::physics::PhysicsPlugin,
-    scene::internal::scene::ScenePlugin,
+    scene::internal::scene::ScenePlugin, sound::sound::SoundPlugin,
 };
 use bevy::prelude::*;
 use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
@@ -18,6 +18,7 @@ impl Plugin for GamePlugin {
             .add_plugins(ScenePlugin)
             .add_plugins(AtlasAnimationPlugin)
             .add_plugins(PhysicsPlugin)
+            .add_plugins(SoundPlugin)
             .add_plugins((
                 EguiPlugin {
                     enable_multipass_for_primary_context: true,

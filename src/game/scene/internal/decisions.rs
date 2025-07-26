@@ -15,7 +15,7 @@ use crate::game::{
         progress::Progress,
         selection::{MenuOption, MenuSelect},
         text::TextBox,
-    },
+    }, sound::sound::SoundPlayer,
 };
 
 pub struct DecisionPlugin;
@@ -35,8 +35,8 @@ impl Plugin for DecisionPlugin {
                     .run_if(in_state(MenuState::Decision)),
             )
             .add_systems(
-                PostUpdate,
-                (update_decision_display).run_if(in_state(MenuState::Decision)),
+                Update,
+                (update_decision_display.before(update_decisions).after(update_decision_spawning)).run_if(in_state(MenuState::Decision)),
             )
             .add_systems(Startup, init_decisions);
     }
@@ -218,7 +218,7 @@ fn update_decision_display(
         }
     }
 }
-fn update_decisions(
+pub fn update_decisions(
     mut commands: Commands,
     mut decisions: ResMut<Decisions>,
     mut menu_select: ResMut<MenuSelect>,
@@ -227,6 +227,8 @@ fn update_decisions(
     mut text_box: ResMut<TextBox>,
     data: Res<Data>,
     progress: Res<Progress>,
+    mut sounds : ResMut<SoundPlayer>,
+    asset_manager : Res<AssetManager>,
 ) {
     if decisions.decision_menu.is_some() {
         let mut vertical = 0;
@@ -242,6 +244,7 @@ fn update_decisions(
             } else {
                 commands.run_system(decision.0.system.unwrap());
             }
+            sounds.play_sound_once_local(asset_manager.sounds["select"].clone());
         } else if keys.just_pressed(KeyCode::KeyX) {
             if decisions.submenu {
                 decisions.submenu = false;
@@ -255,16 +258,20 @@ fn update_decisions(
         } else {
             if keys.just_pressed(KeyCode::ArrowLeft) {
                 horizontal -= 1;
+                sounds.play_sound_once_local(asset_manager.sounds["move_menu"].clone());
             }
             if keys.just_pressed(KeyCode::ArrowRight) {
                 horizontal += 1;
+                sounds.play_sound_once_local(asset_manager.sounds["move_menu"].clone());
             }
 
             if keys.just_pressed(KeyCode::ArrowUp) {
                 vertical -= 1;
+                sounds.play_sound_once_local(asset_manager.sounds["move_menu"].clone());
             }
             if keys.just_pressed(KeyCode::ArrowDown) {
                 vertical += 1;
+                sounds.play_sound_once_local(asset_manager.sounds["move_menu"].clone());
             }
             decisions.vertical_cycle(vertical);
             decisions.horizontal_cycle(horizontal);

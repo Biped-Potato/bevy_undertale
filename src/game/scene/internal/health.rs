@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    data::data::Data,
-    physics::physics_object::PhysicsComponent,
-    player::player::{Player, PlayerStats},
-    scene::internal::{menu::MenuState, menu_transition::MenuTransition},
+    data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::{Player, PlayerStats}, scene::internal::{menu::MenuState, menu_transition::MenuTransition}, sound::sound::SoundPlayer
 };
 
 use crate::game::physics::rectangle::Rectangle;
@@ -27,6 +24,8 @@ fn update_damage(
     mut damage_query: Query<(&mut PhysicsComponent, &mut Damage), Without<Player>>,
     mut player_stats: ResMut<PlayerStats>,
     mut menu_transition: ResMut<MenuTransition>,
+    mut sounds : ResMut<SoundPlayer>,
+    asset_manager : Res<AssetManager>,
     data: Res<Data>,
 ) {
     if let Ok((mut physics, mut player)) = player_query.single_mut() {
@@ -37,6 +36,9 @@ fn update_damage(
                 if rect_1.intersects(rect_2) {
                     player_stats.invincibility = data.game.player.iframes;
                     player_stats.health -= damage.damage;
+
+                    sounds.play_sound_once_local(asset_manager.sounds["hurt"].clone());
+
                     if player_stats.health <= 0 {
                         player_stats.health = 0;
                         menu_transition.new_state(MenuState::Restart);

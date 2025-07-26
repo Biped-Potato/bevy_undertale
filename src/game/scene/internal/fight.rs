@@ -2,12 +2,7 @@ use bevy::prelude::*;
 use rand::{Rng, thread_rng};
 
 use crate::game::{
-    animation::animation::Animator,
-    data::data::Data,
-    loading::loading::AssetManager,
-    physics::physics_object::PhysicsComponent,
-    player::player::Player,
-    scene::{
+    animation::animation::Animator, data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::{
         battle::BattleEvents,
         internal::{
             bullet_board::{self, BulletBoard},
@@ -18,8 +13,7 @@ use crate::game::{
             opponent::{Opponent, OpponentHealthBarManager},
             progress::Progress,
         },
-    },
-    state::state::AppState,
+    }, sound::sound::SoundPlayer, state::state::AppState
 };
 
 pub struct FightPlugin;
@@ -278,9 +272,10 @@ fn update_fight_bar(
     }
 }
 
-fn update_fight_controls(keys: Res<ButtonInput<KeyCode>>, mut fight: ResMut<FightManager>) {
+fn update_fight_controls(asset_manager: Res<AssetManager>,keys: Res<ButtonInput<KeyCode>>, mut fight: ResMut<FightManager>,mut sounds : ResMut<SoundPlayer>,) {
     if keys.just_pressed(KeyCode::KeyZ) {
         fight.trigger_damage();
+        sounds.play_sound_once_local(asset_manager.sounds["attack"].clone());
         fight.miss = false;
     }
 }

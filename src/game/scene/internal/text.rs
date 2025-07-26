@@ -1,18 +1,13 @@
 use bevy::{ecs::system::SystemId, prelude::*, text::TextBounds};
 
 use crate::game::{
-    camera::render_layers::RenderLayerStorage,
-    data::data::{Data, DialogueSet},
-    loading::loading::AssetManager,
-    player::player::Player,
-    scene::internal::{
-        bullet_board::{BulletBoard, BulletBoardFill, spawn_bullet_board},
+    camera::render_layers::RenderLayerStorage, data::data::{Data, DialogueSet}, loading::loading::AssetManager, player::player::Player, scene::internal::{
+        bullet_board::{spawn_bullet_board, BulletBoard, BulletBoardFill},
         helpers::menu_item::MenuItem,
         menu::MenuState,
         menu_transition::MenuTransition,
         progress::Progress,
-    },
-    state::state::AppState,
+    }, sound::sound::SoundPlayer, state::state::AppState
 };
 
 pub struct TextBoxPlugin;
@@ -42,6 +37,8 @@ pub struct TextBox {
     pub dialogue: Option<DialogueSet>,
     pub dialogue_end_event: Option<SystemId>,
     pub dialogue_index: i32,
+
+    pub prev_length : i32,
 }
 
 impl TextBox {
@@ -49,6 +46,7 @@ impl TextBox {
         self.dialogue = Some(dialogue);
         self.dialogue_index = 0;
         self.dialogue_end_event = Some(event);
+        self.prev_length = 0;
         self.timer = 0.;
     }
 }
@@ -58,6 +56,7 @@ impl FromWorld for TextBox {
         let refresh_text = world.register_system(refresh_text);
 
         Self {
+            prev_length : 0,
             dialogue_index: 0,
             dialogue_end_event: None,
             dialogue: None,
@@ -77,6 +76,7 @@ fn refresh_text(
 ) {
     let dialogue_list = &data.game.battle.dialogues;
     let dialogue_name = &dialogue_list[progress.turns as usize];
+    text_box.prev_length = 0;
     text_box.set_text(
         "* ".to_string()
             + asset_manager.dialogue_storage[dialogue_name].dialogue[0]
@@ -133,11 +133,24 @@ fn show_player(mut player_query: Query<(&mut Visibility), With<Player>>) {
         *v = Visibility::Visible;
     }
 }
-fn update_text(mut writer: Text2dWriter, mut text_box: ResMut<TextBox>, time: Res<Time<Fixed>>) {
+fn update_text(
+    mut writer: Text2dWriter, mut text_box: ResMut<TextBox>,
+    time: Res<Time<Fixed>>,
+    mut sounds : ResMut<SoundPlayer>,    
+    asset_manager: Res<AssetManager>
+) {
     if text_box.entity.is_some() {
         text_box.timer += time.delta_secs();
         let mut length = (text_box.velocity * text_box.timer) as i32;
         length = i32::clamp(length, 0, text_box.text.len() as i32);
+
+
+        if (length as i32 - text_box.prev_length) > 1 {
+
+            text_box.prev_length = length as i32;
+            
+            sounds.play_sound_once_local(asset_manager.sounds["text"].clone());
+        }
         let s = &text_box.text;
         let display = &s[0..(length as usize)];
         *writer.text(text_box.entity.unwrap(), 0) = display.to_string();

@@ -24,7 +24,12 @@ atlases = [
     {name = "slash", size_x = 16.0, size_y = 94.0, frame_count = 7},
 ]
 sounds = [
-    #{name = "dialogue", path = "sound/dialogue.wav", volume = 5.0}
+    {name = "hurt", path = "sounds/snd_hurt1.wav", volume = 1.0},
+    {name = "attack", path = "sounds/snd_laz.wav", volume = 1.0},
+    {name = "move_menu", path = "sounds/snd_squeak.wav", volume = 1.0},
+    {name = "text", path = "sounds/SND_TXT2.wav", volume = 1.0},
+    {name = "select", path = "sounds/snd_select.wav", volume = 1.0},
+    {name = "dust", path = "sounds/snd_vaporized.wav", volume = 1.0}
 ]
 fonts = [
     "fonts/Mars_Needs_Cunnilingus.ttf",

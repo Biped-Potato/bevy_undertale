@@ -8,3 +8,4 @@ pub mod player;
 pub mod scene;
 pub mod state;
 pub mod toml;
+pub mod sound;

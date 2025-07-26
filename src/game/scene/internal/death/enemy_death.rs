@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::{thread_rng, Rng};
 
-use crate::game::{data::data::Data, physics::physics_object::PhysicsComponent, player::player::Player, scene::internal::{helpers::despawn::{DespawnInTime, OpacityFromTimer}, menu::MenuState, menu_transition::MenuTransition, opponent::Opponent}};
+use crate::game::{data::data::Data, loading::loading::AssetManager, physics::physics_object::PhysicsComponent, player::player::Player, scene::internal::{helpers::despawn::{DespawnInTime, OpacityFromTimer}, menu::MenuState, menu_transition::MenuTransition, opponent::Opponent}, sound::sound::SoundPlayer};
 
 pub struct EnemyDeathPlugin;
 impl Plugin for EnemyDeathPlugin {
@@ -75,9 +75,12 @@ fn kill_enemy_visual(
     mut commands : Commands,
     mut opponent_query : Query<(&mut Opponent,&mut Sprite,&mut Transform,&mut Visibility)>,
     mut images : ResMut<Assets<Image>>,
+    mut sounds : ResMut<SoundPlayer>,
+    asset_manager : Res<AssetManager>,
     data : Res<Data>,
 ) {
     if let Ok((mut o, mut s,mut t,mut v)) = opponent_query.single_mut() {
+        sounds.play_sound_once_local(asset_manager.sounds["dust"].clone());
         *v = Visibility::Hidden;
         d_a.rows.clear();
         d_a.death_time = data.game.opponent_data.death_time;
